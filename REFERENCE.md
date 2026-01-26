@@ -1,17 +1,22 @@
 # OpenCode Reference Guide
 
-A comprehensive reference guide for OpenCode plugin development with links to official documentation, GitHub repositories, type definitions, and example implementations.
+A comprehensive reference guide for OpenCode plugin development with links to official documentation, GitHub repositories, type definitions, source code architecture, and example implementations.
 
 ## Table of Contents
 
 1. [Official Documentation](#official-documentation)
 2. [GitHub Repositories](#github-repositories)
+   - [OpenCode Source Code Architecture](#opencode-source-code-architecture)
+   - [Direct Source Code References](#direct-source-code-references)
 3. [SDK & Type Definitions](#sdk--type-definitions)
 4. [Plugin Development](#plugin-development)
 5. [Custom Tools](#custom-tools)
-6. [Configuration](#configuration)
-7. [Example Plugins](#example-plugins)
-8. [Community Resources](#community-resources)
+6. [MCP (Model Context Protocol) Integration](#mcp-model-context-protocol-integration)
+7. [Configuration](#configuration)
+8. [Example Plugins](#example-plugins)
+9. [Community Resources](#community-resources)
+10. [Core Architecture & Go Packages](#core-architecture--go-packages)
+11. [Quick Reference Tables](#quick-reference-tables)
 
 ---
 
@@ -20,10 +25,15 @@ A comprehensive reference guide for OpenCode plugin development with links to of
 | Resource | URL | Description |
 |----------|-----|-------------|
 | **OpenCode Main Docs** | https://opencode.ai/docs/ | Official documentation hub |
+| **Intro/Getting Started** | https://opencode.ai/docs/ | Introduction and overview |
 | **Plugins Guide** | https://opencode.ai/docs/plugins/ | Complete plugin development guide |
 | **Custom Tools** | https://opencode.ai/docs/custom-tools/ | Guide for creating custom tools |
+| **Tools Reference** | https://opencode.ai/docs/tools | Built-in and custom tool documentation |
+| **Commands** | https://opencode.ai/docs/commands/ | Slash commands and custom commands |
 | **Configuration** | https://opencode.ai/docs/config/ | opencode.json configuration reference |
 | **SDK Documentation** | https://opencode.ai/docs/sdk/ | JavaScript/TypeScript SDK guide |
+| **CLI Reference** | https://opencode.ai/docs/cli/ | Command-line interface guide |
+| **TUI Guide** | https://opencode.ai/docs/tui/ | Terminal UI features and keybindings |
 | **Ecosystem** | https://opencode.ai/docs/ecosystem/ | Overview of OpenCode ecosystem |
 | **Alt Docs Site** | https://open-code.ai/en/docs/ | Alternative documentation portal |
 
@@ -35,8 +45,90 @@ A comprehensive reference guide for OpenCode plugin development with links to of
 
 | Repository | URL | Description |
 |------------|-----|-------------|
-| **OpenCode Main** | https://github.com/opencode-ai/opencode | Main OpenCode repository |
+| **OpenCode Main** | https://github.com/opencode-ai/opencode | Main OpenCode repository (archived, superseded by Crush) |
 | **OpenCode Organization** | https://github.com/opencode-ai | Official GitHub organization |
+
+### OpenCode Source Code Architecture
+
+The OpenCode repository is a Go-based terminal AI coding agent with a modular, well-structured architecture. Understanding the source structure is crucial for plugin developers.
+
+#### Repository Structure
+
+| Directory/File | Path | Purpose |
+|----------------|------|---------|
+| **CLI Entry Point** | `cmd/` | Command-line interface using Cobra framework |
+| **Root Command** | `cmd/root.go` | Main CLI entry with flags and subcommands |
+| **Core Logic** | `internal/` | All internal application logic |
+| **App Orchestration** | `internal/app/` | High-level app services and AI agent management |
+| **Configuration** | `internal/config/` | Config loading, merging, validation (global/project layers) |
+| **Database** | `internal/db/` | SQLite-based persistence (sessions, users, permissions) |
+| **LLM Integration** | `internal/llm/` | Model provider abstractions, prompts, tool integration |
+| **LLM Agents** | `internal/llm/agent/` | Agent orchestration for LLM interactions |
+| **LLM Models** | `internal/llm/models/` | Provider implementations (OpenAI, Anthropic, etc.) |
+| **LLM Prompts** | `internal/llm/prompt/` | Prompt construction and context injection |
+| **Terminal UI** | `internal/tui/` | Interactive TUI built with Bubble Tea |
+| **UI Core** | `internal/tui/tui.go` | Main UI loop, rendering, keybindings |
+| **Session Management** | `internal/session/` | Conversation tracking, session switching, context |
+| **Permissions** | `internal/permission/` | Authorization and access control |
+| **LSP Integration** | `internal/lsp/` | Language Server Protocol for code intelligence |
+| **Logging** | `internal/logging/` | Logging and diagnostics |
+| **Messages** | `internal/message/` | Message exchange between user/agent/model |
+| **Scripts** | `scripts/` | Development and CI utility scripts |
+| **Config Schema** | `opencode-schema.json` | JSON schema for configuration validation |
+| **Go Modules** | `go.mod`, `go.sum` | Dependency management |
+
+#### Key Source Files
+
+| File | Location | Description |
+|------|----------|-------------|
+| **Main Entry** | `main.go` | Application bootstrap |
+| **Root Command** | `cmd/root.go` | CLI setup with Cobra |
+| **Prompt Builder** | `internal/llm/prompt/prompt.go` | System prompt construction |
+| **OpenRouter Model** | `internal/llm/models/openrouter.go` | OpenRouter provider implementation |
+| **TUI Main** | `internal/tui/tui.go` | Terminal UI core |
+| **Config Loader** | `internal/config/*.go` | Configuration system |
+
+#### Architecture Highlights
+
+**Multi-Provider LLM Support:**
+- Abstractions for OpenAI, Anthropic, Gemini, Groq, Azure, OpenRouter
+- Local endpoint support (LM Studio, vLLM, Ollama)
+- Custom servers via OpenAI-compatible APIs
+
+**Plugin System:**
+- JavaScript/TypeScript plugins loaded from `.opencode/plugins/`
+- NPM packages via config specification
+- Hook-based event system for extensibility
+- Context includes project, client, shell executor, directory, worktree
+
+**Tool System:**
+- Built-in tools: bash, file editor, grep, LSP integration
+- Custom tools via `.opencode/tools/`
+- MCP (Model Context Protocol) server integration
+- Permission-based tool access control
+
+**Session & Persistence:**
+- SQLite database for conversation history
+- Per-project session management
+- Context-aware discussions with resume capability
+
+**Configuration Layers:**
+- Global: `~/.config/opencode/opencode.json`
+- Project: `./opencode.json`
+- Remote: `.well-known/opencode` org defaults
+- Environment: `OPENCODE_CONFIG` override
+- Merge strategy: more specific overrides general
+
+### Direct Source Code References
+
+| Component | GitHub URL | Notes |
+|-----------|------------|-------|
+| **Main Repository** | https://github.com/opencode-ai/opencode | Complete source code |
+| **Root Command** | https://github.com/opencode-ai/opencode/blob/main/cmd/root.go | CLI entry point |
+| **Prompt System** | https://github.com/opencode-ai/opencode/blob/main/internal/llm/prompt/prompt.go | Prompt construction |
+| **OpenRouter Model** | https://github.com/opencode-ai/opencode/blob/main/internal/llm/models/openrouter.go | Provider example |
+| **TUI Implementation** | https://github.com/opencode-ai/opencode/blob/main/internal/tui/tui.go | Terminal UI |
+| **README** | https://github.com/opencode-ai/opencode/blob/main/README.md | Project overview |
 
 ### Community Repositories
 
@@ -301,6 +393,75 @@ export default tool({
 
 ---
 
+## MCP (Model Context Protocol) Integration
+
+### Overview
+
+MCP servers extend OpenCode's capabilities by providing external tools and services that the AI agent can invoke. This allows for modular automation without embedding all data in the LLM context.
+
+### What is MCP?
+
+| Aspect | Description |
+|--------|-------------|
+| **Purpose** | Connect external services/tools to OpenCode |
+| **Protocol** | Model Context Protocol for tool integration |
+| **Benefits** | Token efficiency, modular automation, flexible security |
+| **Use Cases** | GitHub integration, database access, API calls, deployment tools |
+
+### MCP Configuration
+
+Add MCP servers to your `opencode.json`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "mcp": {
+    "my_mcp_server": {
+      "type": "remote",
+      "url": "https://api.example.com/mcp",
+      "enabled": true,
+      "headers": {
+        "Authorization": "Bearer YOUR_TOKEN"
+      }
+    },
+    "local_mcp": {
+      "type": "local",
+      "command": "node",
+      "args": ["./mcp-server.js"],
+      "enabled": true
+    }
+  }
+}
+```
+
+### MCP Permission Control
+
+```json
+{
+  "permission": {
+    "my_mcp_*": "ask",  // ask, allow, or deny
+    "local_mcp_read": "allow",
+    "local_mcp_write": "ask"
+  }
+}
+```
+
+### Popular MCP Integrations
+
+| MCP Server | Purpose | Reference |
+|------------|---------|-----------|
+| **Rube MCP** | Composable dev tools (GitHub, Jira, Supabase, Notion) | https://composio.dev/blog/mcp-with-opencode |
+| **Custom MCP** | Your own services and automation | Build with Node.js, Python, or any language |
+
+### Benefits of MCP
+
+- **Token Efficiency**: Offload data from LLM context to external APIs
+- **Modular Design**: Add/remove services without rebuilding workflow
+- **Security**: Use internal/self-hosted servers for sensitive operations
+- **Rapid Extension**: Plug new services without code changes
+
+---
+
 ## Configuration
 
 ### opencode.json Reference
@@ -510,10 +671,28 @@ export default TemplatePlugin;
 |----------|-----|-------------|
 | **DeepWiki - OpenCode** | https://deepwiki.com/sst/opencode/ | In-depth guides and architecture |
 | **DeepWiki - SDK** | https://deepwiki.com/sst/opencode/10.1-javascript-sdk | JavaScript SDK deep dive |
+| **DeepWiki - SDKs & Extensions** | https://deepwiki.com/sst/opencode/7-sdks-and-extension | SDK and extension guide |
 | **DeepWiki - opencode.json** | https://deepwiki.com/julianromli/opencode-template/3.1-opencode.json-reference | Config reference |
+| **DeepWiki - Integration** | https://deepwiki.com/julianromli/opencode-template/6-integration-and-usage | Integration patterns |
+| **DeepWiki - Architecture** | https://deepwiki.com/opencode-ai/opencode | Core architecture details |
+| **DeepWiki - Installation** | https://deepwiki.com/opencode-ai/opencode/1.1-installation-and-configuration | Installation and setup |
+| **DeepWiki - Extending** | https://deepwiki.com/tencent-source/opencode/8.1-extending-opencode | Extension guide |
+| **DeepWiki - Directory Structure** | https://deepwiki.com/awesome-opencode/awesome-opencode/2.1-directory-structure | Awesome-opencode structure |
+| **DeepWiki - Plugins** | https://deepwiki.com/awesome-opencode/awesome-opencode/4.1-plugins | Plugin registry docs |
 | **Plugin Manual** | https://github.com/Laelia-Succubus/Opencode-Plugin-Manual | Community plugin manual |
 | **Plugin Guide Gist** | https://gist.github.com/johnlindquist/0adf1032b4e84942f3e1050aba3c5e4a | Comprehensive plugin guide |
+| **Plugin Dev Guide Gist** | https://gist.github.com/rstacruz/946d02757525c9a0f49b25e316fbe715 | Plugin development guide |
 | **Awesome Ecosystems** | https://awesome.ecosyste.ms/lists/awesome-opencode%2Fawesome-opencode | Ecosystem overview |
+| **Local LLM Guide** | https://dev.to/tobrun_vannuland_70632c7/configure-local-llm-with-opencode-1gdb | Configure local LLMs |
+| **MCP Integration** | https://composio.dev/blog/mcp-with-opencode | MCP with OpenCode guide |
+
+### Technical Blogs & Tutorials
+
+| Resource | URL | Topic |
+|----------|-----|-------|
+| **Local LLM Configuration** | https://dev.to/tobrun_vannuland_70632c7/configure-local-llm-with-opencode-1gdb | Setting up local LLMs |
+| **MCP Integration Tutorial** | https://composio.dev/blog/mcp-with-opencode | Using MCP servers |
+| **LiteLLM Integration** | https://docs.litellm.ai/docs/tutorials/opencode_integration | LiteLLM with OpenCode |
 
 ### Example Repositories
 
@@ -552,6 +731,105 @@ min_version: "1.0.0"
 ```
 
 Example: https://github.com/awesome-opencode/awesome-opencode/tree/main/data/examples/plugin.yaml
+
+---
+
+## Core Architecture & Go Packages
+
+For developers who want to understand OpenCode's internal architecture or contribute to the core project.
+
+### Go Package Documentation
+
+| Resource | URL | Description |
+|----------|-----|-------------|
+| **Go Packages** | https://pkg.go.dev/github.com/opencode-ai/opencode | Complete Go API documentation |
+| **DeepWiki Architecture** | https://deepwiki.com/opencode-ai/opencode | Detailed architecture documentation |
+| **Installation Guide** | https://deepwiki.com/opencode-ai/opencode/1.1-installation-and-configuration | Setup and configuration details |
+
+### Internal Package Overview
+
+| Package | Purpose | Key Files |
+|---------|---------|-----------|
+| **internal/app** | Core application orchestration and AI agent management | - |
+| **internal/config** | Configuration loading, merging, validation across layers | Config loaders |
+| **internal/db** | SQLite persistence for sessions, users, permissions | Database models |
+| **internal/llm** | LLM provider abstraction and API integration | - |
+| **internal/llm/agent** | Agent orchestration for LLM interactions | Agent logic |
+| **internal/llm/models** | Provider implementations (OpenAI, Anthropic, Gemini, etc.) | `openrouter.go`, etc. |
+| **internal/llm/prompt** | Prompt construction and context injection | `prompt.go` |
+| **internal/tui** | Terminal UI with Bubble Tea framework | `tui.go` |
+| **internal/session** | Session management, conversation tracking, context | Session handlers |
+| **internal/permission** | Authorization and access control | Permission logic |
+| **internal/lsp** | Language Server Protocol integration for code intelligence | LSP client |
+| **internal/logging** | Logging and diagnostics | Log handlers |
+| **internal/message** | Message exchange between user/agent/model | Message types |
+
+### Key Implementation Details
+
+**LLM Provider System:**
+- Abstract interface for multiple providers
+- Support for OpenAI, Anthropic, Google Gemini, Groq, Azure, OpenRouter
+- Local endpoints: LM Studio, vLLM, Ollama
+- Custom servers via OpenAI-compatible APIs
+- Cost tracking and context window management
+
+**Session Persistence:**
+- SQLite database for conversation history
+- Per-project session management
+- Resume capability for long-running tasks
+- Context-aware discussions
+
+**Terminal UI:**
+- Built with Bubble Tea (Go TUI library)
+- Keyboard-driven navigation
+- Multi-panel displays
+- Theme support
+- File picker integration
+- Real-time model switching
+
+**Language Server Protocol:**
+- Code intelligence (linting, autocompletion, syntax)
+- Symbol navigation and references
+- Enables smarter code editing and refactoring
+- Language-aware AI interactions
+
+### Configuration System
+
+**Layer Hierarchy (highest to lowest priority):**
+1. `OPENCODE_CONFIG` environment variable
+2. Project: `./opencode.json`
+3. User: `~/.config/opencode/opencode.json`
+4. Remote: `.well-known/opencode` organization defaults
+
+**Merge Strategy:**
+- More specific configs override general ones
+- Settings are merged, not replaced
+- Allows per-project customization while maintaining global defaults
+
+### Building from Source
+
+```bash
+# Clone repository
+git clone https://github.com/opencode-ai/opencode
+cd opencode
+
+# Install dependencies
+go mod download
+
+# Build
+go build -o opencode
+
+# Run
+./opencode
+```
+
+### Contributing to Core
+
+- Go 1.20+ required
+- Follow standard Go project layout
+- Internal packages not exposed externally
+- Tests in corresponding `_test.go` files
+- CI/CD via GitHub Actions
 
 ---
 
