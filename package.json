@@ -10,8 +10,7 @@
     "test": "bun test",
     "lint": "bun run lslint check",
     "prepare": "lefthook install",
-    "version:bump": "bun run scripts/version-bump.ts",
-    "postinstall": "bun run setup.ts"
+    "version:bump": "bun run scripts/version-bump.ts"
   },
   "keywords": [
     "opencode",
@@ -23,6 +22,9 @@
   ],
   "author": "",
   "license": "MIT",
+  "dependencies": {
+    "@opencode-ai/plugin": "latest"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "lefthook": "^1.6.0",
@@ -35,7 +37,6 @@
     "bun": ">=1.0.0"
   },
   "bunCreate": {
-    "start": "bun run setup.ts",
-    "postinstall": []
+    "postinstall": ["bun run setup.ts"]
   }
 }

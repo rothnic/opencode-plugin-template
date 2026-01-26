@@ -1,102 +1,70 @@
 /**
  * Plugin hooks implementation
  * 
- * Individual hook implementations organized by category.
+ * Example hook implementations. Customize based on your needs.
  */
 
-import type { 
-  SessionInput, 
-  MessageInput, 
-  ToolExecutionInput, 
-  ToolExecutionOutput,
-  FileOperationInput,
-  PermissionInput 
-} from '../types';
-import { Logger, isDangerousCommand } from '../utils';
+import type { PluginContext, PluginHooks } from "../types";
+import { Logger, isCommandAllowed } from "../utils";
 
 /**
- * Session lifecycle hooks
+ * Create and register all plugin hooks
  */
-export function createSessionHooks(logger: Logger) {
+export function registerHooks(context: PluginContext): PluginHooks {
+  const logger = new Logger(context);
+
   return {
-    'session.create': async (input: SessionInput) => {
-      logger.info('Session created', { sessionId: input.sessionId });
+    "session.create": async (input) => {
+      logger.info("Session created");
+      // Add your session initialization logic here
     },
 
-    'session.complete': async (input: SessionInput) => {
-      logger.info('Session completed', { sessionId: input.sessionId });
+    "session.complete": async (input) => {
+      logger.info("Session completed");
+      // Add your session cleanup logic here
     },
-  };
-}
 
-/**
- * Tool execution hooks
- */
-export function createToolHooks(logger: Logger) {
-  return {
-    'tool.execute.before': async (input: ToolExecutionInput, output: ToolExecutionOutput) => {
-      // Security: Block dangerous bash commands
-      if (input.tool === 'bash' && output.args?.command) {
+    "tool.execute.before": async (input, output) => {
+      // Example: Validate bash commands before execution
+      if (input.tool === "bash" && output.args?.command) {
         const command = output.args.command as string;
-        
-        if (isDangerousCommand(command)) {
-          logger.error('Dangerous command blocked', { 
-            tool: input.tool,
-            command: command.substring(0, 100) // Log first 100 chars only
-          });
-          throw new Error('⚠️ Dangerous command blocked by plugin for security');
+
+        if (!isCommandAllowed(command)) {
+          logger.warn("Command blocked", { command: command.substring(0, 100) });
+          throw new Error("Command not allowed by plugin");
         }
       }
 
-      logger.debug('Tool execution starting', { tool: input.tool });
+      logger.debug("Tool executing", { tool: input.tool });
     },
 
-    'tool.execute.after': async (input: ToolExecutionInput) => {
-      logger.debug('Tool execution completed', { tool: input.tool });
-    },
-  };
-}
-
-/**
- * Message hooks
- */
-export function createMessageHooks(logger: Logger) {
-  return {
-    'message.create': async (input: MessageInput) => {
-      logger.debug('Message created', { messageId: input.messageId });
+    "tool.execute.after": async (input) => {
+      logger.debug("Tool executed", { tool: input.tool });
     },
 
-    'message.complete': async (input: MessageInput) => {
-      logger.debug('Message completed', { messageId: input.messageId });
-    },
-  };
-}
-
-/**
- * File operation hooks
- */
-export function createFileHooks(logger: Logger) {
-  return {
-    'file.create': async (input: FileOperationInput) => {
-      logger.debug('File created', { path: input.path });
+    "message.create": async (input) => {
+      // Add your message creation logic here
+      logger.debug("Message created");
     },
 
-    'file.edit': async (input: FileOperationInput) => {
-      logger.debug('File edited', { path: input.path });
+    "message.complete": async (input) => {
+      // Add your message completion logic here
+      logger.debug("Message completed");
     },
-  };
-}
 
-/**
- * Permission hooks
- */
-export function createPermissionHooks(logger: Logger) {
-  return {
-    'permission.request': async (input: PermissionInput) => {
-      logger.debug('Permission requested', { 
-        tool: input.tool,
-        action: input.action 
-      });
+    "file.create": async (input) => {
+      // Add your file creation logic here
+      logger.debug("File created", { path: input.path });
+    },
+
+    "file.edit": async (input) => {
+      // Add your file edit logic here
+      logger.debug("File edited", { path: input.path });
+    },
+
+    "permission.request": async (input) => {
+      // Add your permission logic here
+      logger.debug("Permission requested", { tool: input.tool });
     },
   };
 }

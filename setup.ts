@@ -2,150 +2,111 @@
 
 /**
  * Setup script for OpenCode Plugin Template
- * 
- * This script runs after `bun create` to initialize the plugin project.
- * It prompts for plugin details and configures the project accordingly.
+ * Runs automatically after `bun create`
  */
 
-import { $ } from "bun";
 import * as fs from "fs/promises";
 import * as path from "path";
 
-// ANSI color codes
 const colors = {
   reset: "\x1b[0m",
-  bright: "\x1b[1m",
   cyan: "\x1b[36m",
   green: "\x1b[32m",
   yellow: "\x1b[33m",
-  blue: "\x1b[34m",
 };
 
 function log(message: string, color = colors.reset) {
   console.log(`${color}${message}${colors.reset}`);
 }
 
-async function prompt(question: string, defaultValue?: string): Promise<string> {
-  const suffix = defaultValue ? ` (${defaultValue})` : "";
+async function promptYesNo(question: string, defaultYes = true): Promise<boolean> {
+  const suffix = defaultYes ? " [Y/n]" : " [y/N]";
   process.stdout.write(`${colors.cyan}${question}${suffix}: ${colors.reset}`);
   
-  const buf = Buffer.alloc(1024);
-  const bytesRead = await new Promise<number>((resolve) => {
-    process.stdin.once("readable", () => {
-      const chunk = process.stdin.read();
-      if (chunk) {
-        buf.write(chunk.toString());
-        resolve(chunk.length);
+  return new Promise((resolve) => {
+    process.stdin.once("data", (data) => {
+      const answer = data.toString().trim().toLowerCase();
+      if (answer === "") {
+        resolve(defaultYes);
       } else {
-        resolve(0);
+        resolve(answer === "y" || answer === "yes");
       }
     });
   });
-  
-  const answer = buf.toString("utf-8", 0, bytesRead).trim();
-  return answer || defaultValue || "";
 }
 
-async function updatePackageJson(pluginName: string, description: string, author: string) {
-  const packageJsonPath = path.join(process.cwd(), "package.json");
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
-  
-  packageJson.name = pluginName;
-  packageJson.description = description;
-  packageJson.author = author;
-  
-  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
-  log("✓ Updated package.json", colors.green);
-}
-
-async function updateOpencodeJson(pluginName: string) {
-  const opencodeJsonPath = path.join(process.cwd(), "opencode.json");
-  const opencodeJson = JSON.parse(await fs.readFile(opencodeJsonPath, "utf-8"));
-  
-  opencodeJson.plugin = [pluginName];
-  
-  await fs.writeFile(opencodeJsonPath, JSON.stringify(opencodeJson, null, 2) + "\n");
-  log("✓ Updated opencode.json", colors.green);
-}
-
-async function updateReadme(pluginName: string, description: string) {
-  const readmePath = path.join(process.cwd(), "README.md");
-  let readme = await fs.readFile(readmePath, "utf-8");
-  
-  readme = readme.replace(/opencode-plugin-template/g, pluginName);
-  readme = readme.replace(
-    /A template repository for quickly creating OpenCode plugins with best practices/,
-    description
-  );
-  
-  await fs.writeFile(readmePath, readme);
-  log("✓ Updated README.md", colors.green);
-}
-
-async function installDependencies() {
-  log("\nInstalling dependencies...", colors.cyan);
-  await $`bun install`.quiet();
-  log("✓ Dependencies installed", colors.green);
-}
-
-async function setupGitHooks() {
-  log("\nSetting up git hooks...", colors.cyan);
+async function removeFile(filePath: string) {
   try {
-    await $`bun run prepare`.quiet();
-    log("✓ Git hooks configured", colors.green);
+    await fs.unlink(filePath);
+    log(`  ✓ Removed ${path.basename(filePath)}`, colors.green);
   } catch (error) {
-    log("⚠ Could not setup git hooks (not a git repository?)", colors.yellow);
+    // File might not exist, that's ok
+  }
+}
+
+async function removeDirectory(dirPath: string) {
+  try {
+    await fs.rm(dirPath, { recursive: true });
+    log(`  ✓ Removed ${path.basename(dirPath)}/`, colors.green);
+  } catch (error) {
+    // Directory might not exist, that's ok
   }
 }
 
 async function main() {
-  log("\n" + "=".repeat(60), colors.bright);
-  log("  OpenCode Plugin Template Setup", colors.bright + colors.cyan);
-  log("=".repeat(60) + "\n", colors.bright);
+  log("\n" + "=".repeat(60));
+  log("  OpenCode Plugin Template Setup", colors.cyan);
+  log("=".repeat(60) + "\n");
 
-  log("Let's configure your new OpenCode plugin!\n", colors.blue);
+  log("This template includes optional example components.", colors.yellow);
+  log("You can remove what you don't need:\n");
 
-  // Get plugin details
-  const pluginName = await prompt("Plugin name", "my-opencode-plugin");
-  const description = await prompt(
-    "Description",
-    "An OpenCode plugin with best practices"
-  );
-  const author = await prompt("Author", "");
+  // Ask about each optional component
+  const keepAgentTemplate = await promptYesNo("Keep example agent template (.opencode/agent/)?", true);
+  const keepSkillTemplate = await promptYesNo("Keep example skill template (.opencode/skill/)?", true);
+  const keepToolExample = await promptYesNo("Keep example custom tool (.opencode/tools/)?", true);
+  
+  log("\nRemoving unwanted components...", colors.cyan);
 
-  log("\nConfiguring plugin...", colors.cyan);
+  // Remove components user doesn't want
+  if (!keepAgentTemplate) {
+    await removeDirectory(path.join(process.cwd(), ".opencode/agent"));
+  }
 
-  // Update configuration files
-  await updatePackageJson(pluginName, description, author);
-  await updateOpencodeJson(pluginName);
-  await updateReadme(pluginName, description);
+  if (!keepSkillTemplate) {
+    await removeDirectory(path.join(process.cwd(), ".opencode/skill"));
+  }
 
-  // Install dependencies
-  await installDependencies();
+  if (!keepToolExample) {
+    await removeDirectory(path.join(process.cwd(), ".opencode/tools"));
+  }
 
-  // Setup git hooks
-  await setupGitHooks();
+  // Clean up setup script and bun-create section from package.json
+  log("\nFinalizing setup...", colors.cyan);
+  
+  const packageJsonPath = path.join(process.cwd(), "package.json");
+  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
+  
+  // Remove bun-create section (as per bun create convention)
+  delete packageJson.bunCreate;
+  
+  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
+  log("  ✓ Cleaned up package.json", colors.green);
 
-  // Success message
-  log("\n" + "=".repeat(60), colors.bright);
-  log("  ✓ Setup Complete!", colors.bright + colors.green);
-  log("=".repeat(60) + "\n", colors.bright);
+  // Remove setup script itself
+  await removeFile(path.join(process.cwd(), "setup.ts"));
+
+  log("\n" + "=".repeat(60));
+  log("  ✓ Setup Complete!", colors.green);
+  log("=".repeat(60) + "\n");
 
   log("Next steps:", colors.cyan);
-  log("  1. Customize your plugin in .opencode/plugins/", colors.reset);
-  log("  2. Add custom tools in .opencode/tools/", colors.reset);
-  log("  3. Create agents in .opencode/agent/*.md", colors.reset);
-  log("  4. Create skills in .opencode/skill/*.md", colors.reset);
-  log("  5. Run tests: bun test", colors.reset);
-  log("  6. Build: bun run build", colors.reset);
+  log("  1. Customize .opencode/plugins/ for your plugin logic");
+  log("  2. Run: bun install");
+  log("  3. Run: bun test");
+  log("  4. See QUICKSTART.md for a 5-minute guide\n");
 
-  log("\nDocumentation:", colors.cyan);
-  log("  - QUICKSTART.md - 5-minute getting started guide", colors.reset);
-  log("  - PLUGIN_BEST_PRACTICES.md - Detailed best practices", colors.reset);
-  log("  - BEST_PRACTICES.md - General development practices", colors.reset);
-  log("  - REFERENCE.md - Complete API reference", colors.reset);
-
-  log("\nHappy coding! 🚀\n", colors.green);
+  process.exit(0);
 }
 
 main().catch((error) => {
