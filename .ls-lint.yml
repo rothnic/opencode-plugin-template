@@ -1,0 +1,27 @@
+# ls-lint configuration for the template repository itself
+# This enforces naming conventions for the template project
+
+ls:
+  ./:
+    .dir: kebab-case
+    .ts: kebab-case
+    .md: kebab-case | SCREAMING_SNAKE_CASE  # Allow README.md, AGENTS.md, etc.
+    .json: kebab-case
+    .yml: kebab-case | .ls-lint.yml
+    .yaml: kebab-case
+  
+  docs:
+    .md: kebab-case  # Only kebab-case in docs directory (no screaming case)
+  
+  template:
+    .dir: kebab-case
+    .ts: kebab-case
+    .md: kebab-case | SCREAMING_SNAKE_CASE
+    .json: kebab-case
+
+ignore:
+  - node_modules
+  - dist
+  - .git
+  - .opencode
+  - "*.log"

@@ -28,12 +28,18 @@ A **batteries-included** template for creating professional OpenCode plugins. Go
 ## Documentation 📚
 
 **Getting Started:**
-- [QUICKSTART.md](QUICKSTART.md) - 5-minute getting started guide
-- **[HOW_TO.md](HOW_TO.md)** - **Complete how-to guide answering "How do I...?" questions**
+- [Quickstart Guide](docs/quickstart.md) - 5-minute getting started guide
+- **[How-To Guide](docs/how-to.md)** - **Complete how-to guide answering "How do I...?" questions**
 
 **Deep Dives:**
-- [PLUGIN_BEST_PRACTICES.md](PLUGIN_BEST_PRACTICES.md) - Best practices and patterns
-- [REFERENCE.md](REFERENCE.md) - Complete API reference with all OpenCode resources
+- [Plugin Best Practices](docs/plugin-best-practices.md) - Best practices and patterns
+- [Reference Guide](docs/reference.md) - Complete API reference with all OpenCode resources
+- [Best Practices](docs/best-practices.md) - General development best practices
+
+**Project Info:**
+- [AGENTS.md](AGENTS.md) - Documentation of custom agents
+- [Contributing](docs/contributing.md) - How to contribute
+- [Changelog](docs/changelog.md) - Version history
 
 **Examples:**
 - [examples/](examples/) - Real-world plugin examples
@@ -41,7 +47,7 @@ A **batteries-included** template for creating professional OpenCode plugins. Go
 
 ### What Can I Do With This Template?
 
-The **[HOW_TO.md](HOW_TO.md)** guide shows you how to:
+The **[How-To Guide](docs/how-to.md)** shows you how to:
 
 **Configuration & Setup:**
 - ✅ Load plugin configuration from global/project levels
@@ -85,7 +91,7 @@ The **[HOW_TO.md](HOW_TO.md)** guide shows you how to:
 - ✅ Publish to npm
 - ✅ Distribute without npm (symlinks, submodules)
 
-See **[HOW_TO.md](HOW_TO.md)** for complete code examples of each scenario.
+See **[How-To Guide](docs/how-to.md)** for complete code examples of each scenario.
 
 ## Quick Start 🏃
 

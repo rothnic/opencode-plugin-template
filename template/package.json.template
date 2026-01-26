@@ -1,0 +1,42 @@
+{
+  "name": "opencode-plugin-template",
+  "version": "0.1.0",
+  "description": "A template repository for quickly creating OpenCode plugins with best practices",
+  "main": "index.ts",
+  "type": "module",
+  "scripts": {
+    "dev": "bun run --watch index.ts",
+    "build": "bun build index.ts --outdir ./dist --target node",
+    "test": "bun test",
+    "lint": "bun run lslint check",
+    "prepare": "lefthook install",
+    "version:bump": "bun run scripts/version-bump.ts"
+  },
+  "keywords": [
+    "opencode",
+    "plugin",
+    "template",
+    "ai",
+    "automation",
+    "bun-create"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@opencode-ai/plugin": "latest"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "lefthook": "^1.6.0",
+    "lslint": "^0.0.2"
+  },
+  "peerDependencies": {
+    "bun": ">=1.0.0"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  },
+  "bunCreate": {
+    "postinstall": ["bun run setup.ts"]
+  }
+}

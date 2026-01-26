@@ -26,30 +26,24 @@ async function promptYesNo(question: string, defaultYes = true): Promise<boolean
   return new Promise((resolve) => {
     process.stdin.once("data", (data) => {
       const answer = data.toString().trim().toLowerCase();
-      if (answer === "") {
-        resolve(defaultYes);
-      } else {
-        resolve(answer === "y" || answer === "yes");
-      }
+      resolve(answer === "" ? defaultYes : (answer === "y" || answer === "yes"));
     });
   });
 }
 
-async function removeFile(filePath: string) {
-  try {
-    await fs.unlink(filePath);
-    log(`  ✓ Removed ${path.basename(filePath)}`, colors.green);
-  } catch (error) {
-    // File might not exist, that's ok
-  }
-}
-
-async function removeDirectory(dirPath: string) {
-  try {
-    await fs.rm(dirPath, { recursive: true });
-    log(`  ✓ Removed ${path.basename(dirPath)}/`, colors.green);
-  } catch (error) {
-    // Directory might not exist, that's ok
+async function copyDirectory(src: string, dest: string) {
+  await fs.mkdir(dest, { recursive: true });
+  const entries = await fs.readdir(src, { withFileTypes: true });
+  
+  for (const entry of entries) {
+    const srcPath = path.join(src, entry.name);
+    const destPath = path.join(dest, entry.name);
+    
+    if (entry.isDirectory()) {
+      await copyDirectory(srcPath, destPath);
+    } else {
+      await fs.copyFile(srcPath, destPath);
+    }
   }
 }
 
@@ -58,53 +52,61 @@ async function main() {
   log("  OpenCode Plugin Template Setup", colors.cyan);
   log("=".repeat(60) + "\n");
 
-  log("This template includes optional example components.", colors.yellow);
-  log("You can remove what you don't need:\n");
+  const cwd = process.cwd();
+  const templateDir = path.join(cwd, "template");
 
-  // Ask about each optional component
-  const keepAgentTemplate = await promptYesNo("Keep example agent template (.opencode/agent/)?", true);
-  const keepSkillTemplate = await promptYesNo("Keep example skill template (.opencode/skill/)?", true);
-  const keepToolExample = await promptYesNo("Keep example custom tool (.opencode/tools/)?", true);
+  // Copy template files
+  log("Copying template files...", colors.cyan);
+  const entries = await fs.readdir(templateDir, { withFileTypes: true });
   
-  log("\nRemoving unwanted components...", colors.cyan);
-
-  // Remove components user doesn't want
-  if (!keepAgentTemplate) {
-    await removeDirectory(path.join(process.cwd(), ".opencode/agent"));
+  for (const entry of entries) {
+    const src = path.join(templateDir, entry.name);
+    const dest = path.join(cwd, entry.name);
+    
+    if (entry.isDirectory()) {
+      await copyDirectory(src, dest);
+      log(`  ✓ Copied ${entry.name}/`, colors.green);
+    } else if (entry.name === "package.json.template") {
+      await fs.copyFile(src, path.join(cwd, "package.json"));
+      log(`  ✓ Copied package.json`, colors.green);
+    } else if (entry.name === ".ls-lint.yml") {
+      await fs.copyFile(src, dest);
+      log(`  ✓ Installed .ls-lint.yml`, colors.green);
+    } else {
+      await fs.copyFile(src, dest);
+      log(`  ✓ Copied ${entry.name}`, colors.green);
+    }
   }
 
-  if (!keepSkillTemplate) {
-    await removeDirectory(path.join(process.cwd(), ".opencode/skill"));
-  }
-
-  if (!keepToolExample) {
-    await removeDirectory(path.join(process.cwd(), ".opencode/tools"));
-  }
-
-  // Clean up setup script and bun-create section from package.json
-  log("\nFinalizing setup...", colors.cyan);
+  // Ask about optional components
+  log("\nOptional components:", colors.yellow);
+  const keepAgent = await promptYesNo("Keep agent template (.opencode/agent/)?", true);
+  const keepSkill = await promptYesNo("Keep skill template (.opencode/skill/)?", true);
+  const keepTool = await promptYesNo("Keep tool example (.opencode/tools/)?", true);
   
-  const packageJsonPath = path.join(process.cwd(), "package.json");
-  const packageJson = JSON.parse(await fs.readFile(packageJsonPath, "utf-8"));
-  
-  // Remove bun-create section (as per bun create convention)
-  delete packageJson.bunCreate;
-  
-  await fs.writeFile(packageJsonPath, JSON.stringify(packageJson, null, 2) + "\n");
-  log("  ✓ Cleaned up package.json", colors.green);
+  log("\nCleaning up...", colors.cyan);
 
-  // Remove setup script itself
-  await removeFile(path.join(process.cwd(), "setup.ts"));
+  if (!keepAgent) await fs.rm(path.join(cwd, ".opencode/agent"), { recursive: true }).catch(() => {});
+  if (!keepSkill) await fs.rm(path.join(cwd, ".opencode/skill"), { recursive: true }).catch(() => {});
+  if (!keepTool) await fs.rm(path.join(cwd, ".opencode/tools"), { recursive: true }).catch(() => {});
+
+  // Clean up package.json
+  const pkgPath = path.join(cwd, "package.json");
+  const pkg = JSON.parse(await fs.readFile(pkgPath, "utf-8"));
+  delete pkg.bunCreate;
+  await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+  log("  ✓ Cleaned package.json", colors.green);
+
+  // Remove template dir and setup script
+  await fs.rm(templateDir, { recursive: true });
+  await fs.unlink(path.join(cwd, "setup.ts"));
 
   log("\n" + "=".repeat(60));
   log("  ✓ Setup Complete!", colors.green);
   log("=".repeat(60) + "\n");
-
   log("Next steps:", colors.cyan);
-  log("  1. Customize .opencode/plugins/ for your plugin logic");
-  log("  2. Run: bun install");
-  log("  3. Run: bun test");
-  log("  4. See QUICKSTART.md for a 5-minute guide\n");
+  log("  1. Run: bun install");
+  log("  2. See docs/quickstart.md\n");
 
   process.exit(0);
 }
