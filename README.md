@@ -12,6 +12,7 @@ A comprehensive template for creating OpenCode plugins with best practices, exte
 - 🔒 **Best Practices** - Lefthook for git hooks, lslint for naming conventions
 - 📦 **Version Management** - Built-in version bumping and release management
 - 🎨 **TypeScript Support** - Full type safety with Bun runtime
+- ✅ **Comprehensive Test Suite** - Verify plugin registration with 100+ tests
 
 > **💡 New to OpenCode plugin development?** Check out [REFERENCE.md](REFERENCE.md) for a comprehensive guide to all OpenCode resources, type definitions, and example implementations.
 
@@ -106,6 +107,12 @@ bun run build
 # Run tests
 bun test
 
+# Run specific test file
+bun test tests/plugin.test.ts
+
+# Run tests in watch mode
+bun test --watch
+
 # Lint naming and structure
 bun run lint
 
@@ -114,6 +121,25 @@ bun run version:bump patch
 bun run version:bump minor
 bun run version:bump major
 ```
+
+### Testing Your Plugin
+
+The template includes a comprehensive test suite in the `tests/` directory that verifies:
+
+- **Plugin Structure**: Ensures hooks are properly exported and typed
+- **Custom Tools**: Validates tool registration, schemas, and handlers
+- **Custom Agents**: Checks agent configurations and tool references
+- **Skills**: Verifies skill content and searchability
+- **Integration**: Tests component compatibility and registration
+
+See [tests/README.md](tests/README.md) for detailed testing documentation.
+
+**Key Tests:**
+- `tests/plugin.test.ts` - Plugin structure and hooks (20+ tests)
+- `tests/tools.test.ts` - Tool registration verification (25+ tests)
+- `tests/agents.test.ts` - Agent configuration validation (20+ tests)
+- `tests/skills.test.ts` - Skill structure and content (20+ tests)
+- `tests/integration.test.ts` - End-to-end integration (20+ tests)
 
 ### Adding Custom Tools
 
