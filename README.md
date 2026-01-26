@@ -1,24 +1,91 @@
 # OpenCode Plugin Template 🚀
 
-A comprehensive template for creating OpenCode plugins with best practices, extensibility, and professional tooling built-in.
+A **batteries-included** template for creating professional OpenCode plugins. Goes beyond basics to provide production-ready patterns for configuration management, state persistence, security, and scalability.
 
 ## Features ✨
 
-- 🎯 **Complete Plugin Structure** - Organized subdirectories for types, utils, and hooks
-- 🔧 **Custom Tools** - JSON schema validation and type-safe interfaces
-- 🤖 **Custom Agents** - Markdown-based agents with frontmatter configuration
-- 📚 **Skills Library** - Markdown skills with discoverable scripts
-- 🪝 **Plugin Hooks** - Intercept and modify OpenCode's behavior at key points
-- 🔒 **Best Practices** - No console.log checks, structured logging, security validation
-- 📦 **Version Management** - Built-in version bumping and release management
-- 🎨 **TypeScript Support** - Full type safety with Bun runtime
-- ✅ **Comprehensive Test Suite** - 100+ tests with plugin-specific unit tests
-- 🚀 **Bun Create Support** - One command to create new plugin projects
+### Core Infrastructure
+- 🎯 **Complete Plugin Structure** - Organized subdirectories for types, utils, hooks, config, and state
+- 🔧 **Configuration Management** - Load config from global/project levels with proper precedence
+- 💾 **State Persistence** - Save plugin state at global or project level with automatic cleanup
+- 🔒 **Security Utilities** - Command validation, sensitive data sanitization, input validation
+- 📝 **Structured Logging** - Logger utility using `client.app.log()` (no console.log)
+- 🎨 **TypeScript Support** - Full type safety with official `@opencode-ai/plugin` types
 
-> **💡 New to OpenCode plugin development?** Check out:
-> - [QUICKSTART.md](QUICKSTART.md) - 5-minute getting started guide
-> - [PLUGIN_BEST_PRACTICES.md](PLUGIN_BEST_PRACTICES.md) - Detailed plugin best practices
-> - [REFERENCE.md](REFERENCE.md) - Complete API reference
+### Extensions & Customization
+- 🔧 **Custom Tools** - JSON schema validation with Zod, type-safe interfaces
+- 🤖 **Custom Agents** - Markdown-based agents with YAML frontmatter configuration
+- 📚 **Skills Library** - Markdown skills for reusable workflows
+- 🪝 **Plugin Hooks** - Intercept and modify OpenCode behavior at 12+ hook points
+
+### Development Experience
+- 🚀 **Bun Create Support** - One command to scaffold new projects with interactive setup
+- ✅ **Comprehensive Test Suite** - 100+ tests covering all patterns and utilities
+- 📦 **Version Management** - Automated version bumping across all config files
+- 🔗 **Git Hooks** - Lefthook with pre-commit linting, console.log detection, commit validation
+- 🏗️ **Scalable Patterns** - Feature flags, caching, plugin-to-plugin communication examples
+
+## Documentation 📚
+
+**Getting Started:**
+- [QUICKSTART.md](QUICKSTART.md) - 5-minute getting started guide
+- **[HOW_TO.md](HOW_TO.md)** - **Complete how-to guide answering "How do I...?" questions**
+
+**Deep Dives:**
+- [PLUGIN_BEST_PRACTICES.md](PLUGIN_BEST_PRACTICES.md) - Best practices and patterns
+- [REFERENCE.md](REFERENCE.md) - Complete API reference with all OpenCode resources
+
+**Examples:**
+- [examples/](examples/) - Real-world plugin examples
+- [tests/](tests/) - Test examples showing all patterns in action
+
+### What Can I Do With This Template?
+
+The **[HOW_TO.md](HOW_TO.md)** guide shows you how to:
+
+**Configuration & Setup:**
+- ✅ Load plugin configuration from global/project levels
+- ✅ Define plugin config in opencode.json (with precedence rules)
+- ✅ Provide runtime configuration overrides
+- ✅ Implement feature flags
+
+**State Management:**
+- ✅ Persist plugin state across sessions
+- ✅ Choose between project-level vs global-level state
+- ✅ Implement caching with TTL
+- ✅ Clean up state on plugin uninstall
+
+**Security & Validation:**
+- ✅ Validate bash commands before execution
+- ✅ Sanitize sensitive data from logs
+- ✅ Validate user input with Zod schemas
+- ✅ Block dangerous operations
+
+**Hooks & Interception:**
+- ✅ Intercept tool execution (before/after)
+- ✅ Monitor file operations (create/edit)
+- ✅ Add behavior on session start/end
+- ✅ Implement custom permission logic
+
+**Custom Extensions:**
+- ✅ Create custom tools with type-safe handlers
+- ✅ Build custom agents with markdown + frontmatter
+- ✅ Define reusable skills
+- ✅ Make tools available to agents
+
+**Advanced Patterns:**
+- ✅ Implement plugin-to-plugin communication
+- ✅ Build caching layers
+- ✅ Handle async operations safely
+- ✅ Scale plugin structure without major refactoring
+
+**Testing & Distribution:**
+- ✅ Write unit and integration tests
+- ✅ Test hook implementations
+- ✅ Publish to npm
+- ✅ Distribute without npm (symlinks, submodules)
+
+See **[HOW_TO.md](HOW_TO.md)** for complete code examples of each scenario.
 
 ## Quick Start 🏃
 
