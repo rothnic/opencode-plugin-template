@@ -5,6 +5,23 @@
 pre-commit:
   parallel: true
   commands:
+    no-console-log:
+      glob: ".opencode/**/*.{ts,tsx,js,jsx}"
+      run: |
+        if grep -rn "console\.\(log\|info\|debug\|warn\|error\)" .opencode/plugins/ .opencode/tools/ 2>/dev/null | grep -v "process\.stderr\|// console\|/\* console"; then
+          echo "❌ Error: console.log/info/debug/warn/error found in plugin code!"
+          echo ""
+          echo "OpenCode plugins should use client.app.log() for structured logging."
+          echo "See .opencode/plugins/utils/index.ts for the Logger utility."
+          echo ""
+          echo "If you need to debug, use the Logger class:"
+          echo "  logger.debug('message', { data });"
+          echo ""
+          echo "For development stderr output, use:"
+          echo "  process.stderr.write('message\\n');"
+          exit 1
+        fi
+    
     lint:
       glob: "*.{ts,tsx,js,jsx}"
       run: bun run lint

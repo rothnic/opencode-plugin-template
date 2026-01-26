@@ -10,14 +10,16 @@
     "test": "bun test",
     "lint": "bun run lslint check",
     "prepare": "lefthook install",
-    "version:bump": "bun run scripts/version-bump.ts"
+    "version:bump": "bun run scripts/version-bump.ts",
+    "postinstall": "bun run setup.ts"
   },
   "keywords": [
     "opencode",
     "plugin",
     "template",
     "ai",
-    "automation"
+    "automation",
+    "bun-create"
   ],
   "author": "",
   "license": "MIT",
@@ -31,5 +33,9 @@
   },
   "engines": {
     "bun": ">=1.0.0"
+  },
+  "bunCreate": {
+    "start": "bun run setup.ts",
+    "postinstall": []
   }
 }

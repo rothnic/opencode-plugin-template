@@ -1,59 +1,65 @@
 /**
- * Main plugin export
- * This is the entry point for the OpenCode plugin
+ * OpenCode Plugin Template
+ * 
+ * This is the main entry point for your OpenCode plugin.
+ * The plugin is organized into subdirectories for better maintainability:
+ * 
+ * - types/    - TypeScript type definitions
+ * - utils/    - Shared utility functions
+ * - hooks/    - Hook implementations
+ * 
+ * This structure allows you to:
+ * - Keep code organized and maintainable
+ * - Easily add new functionality
+ * - Share utilities across hooks
+ * - Test components in isolation
  */
 
-import type { PluginContext } from "./types";
+import type { PluginContext, PluginHooks } from './types';
+import { Logger } from './utils';
+import {
+  createSessionHooks,
+  createToolHooks,
+  createMessageHooks,
+  createFileHooks,
+  createPermissionHooks,
+} from './hooks';
 
-export const MyPlugin = async (context: PluginContext) => {
-  const { project, client, $, directory, worktree } = context;
+/**
+ * Main plugin export
+ * 
+ * This async function receives the plugin context and returns an object
+ * containing all the hooks your plugin implements.
+ * 
+ * @param context - The plugin context provided by OpenCode
+ * @returns An object with hook implementations
+ */
+export const MyPlugin = async (context: PluginContext): Promise<PluginHooks> => {
+  // Initialize logger (uses client.app.log when available)
+  const logger = new Logger(context, 'opencode-plugin-template');
+  
+  logger.info('Plugin initialized', {
+    project: context.project.name,
+    directory: context.directory,
+    branch: context.worktree.branch,
+  });
 
-  console.log("🚀 OpenCode Plugin Template loaded!");
+  // Create all hook implementations
+  const sessionHooks = createSessionHooks(logger);
+  const toolHooks = createToolHooks(logger);
+  const messageHooks = createMessageHooks(logger);
+  const fileHooks = createFileHooks(logger);
+  const permissionHooks = createPermissionHooks(logger);
 
+  // Return combined hooks object
   return {
-    // Session lifecycle hooks
-    "session.create": async (input: any) => {
-      console.log("📝 Session created");
-    },
-
-    "session.complete": async (input: any) => {
-      console.log("✅ Session completed");
-    },
-
-    // Tool execution hooks
-    "tool.execute.before": async (input: any, output: any) => {
-      // Add custom logic before tool execution
-      // Example: Block dangerous commands
-      if (input.tool === "bash" && output.args?.command?.includes("rm -rf /")) {
-        throw new Error("⚠️ Dangerous command blocked by plugin");
-      }
-    },
-
-    "tool.execute.after": async (input: any) => {
-      // Add custom logic after tool execution
-    },
-
-    // Message hooks
-    "message.create": async (input: any) => {
-      // Custom logic when messages are created
-    },
-
-    "message.complete": async (input: any) => {
-      // Custom logic when messages are completed
-    },
-
-    // File operation hooks
-    "file.create": async (input: any) => {
-      // Custom logic for file creation
-    },
-
-    "file.edit": async (input: any) => {
-      // Custom logic for file edits
-    },
-
-    // Permission hooks
-    "permission.request": async (input: any) => {
-      // Custom permission logic
-    },
+    ...sessionHooks,
+    ...toolHooks,
+    ...messageHooks,
+    ...fileHooks,
+    ...permissionHooks,
   };
 };
+
+// Export types for use in other files
+export type { PluginContext, PluginHooks } from './types';

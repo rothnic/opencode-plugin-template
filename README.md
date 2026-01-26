@@ -4,50 +4,123 @@ A comprehensive template for creating OpenCode plugins with best practices, exte
 
 ## Features ✨
 
-- 🎯 **Complete Plugin Structure** - Ready-to-use plugin architecture with examples
-- 🔧 **Custom Tools** - Add your own tools to extend OpenCode's capabilities
-- 🤖 **Custom Agents** - Define specialized AI agents for specific tasks
-- 📚 **Skills Library** - Reusable patterns and procedures for common tasks
+- 🎯 **Complete Plugin Structure** - Organized subdirectories for types, utils, and hooks
+- 🔧 **Custom Tools** - JSON schema validation and type-safe interfaces
+- 🤖 **Custom Agents** - Markdown-based agents with frontmatter configuration
+- 📚 **Skills Library** - Markdown skills with discoverable scripts
 - 🪝 **Plugin Hooks** - Intercept and modify OpenCode's behavior at key points
-- 🔒 **Best Practices** - Lefthook for git hooks, lslint for naming conventions
+- 🔒 **Best Practices** - No console.log checks, structured logging, security validation
 - 📦 **Version Management** - Built-in version bumping and release management
 - 🎨 **TypeScript Support** - Full type safety with Bun runtime
-- ✅ **Comprehensive Test Suite** - Verify plugin registration with 100+ tests
+- ✅ **Comprehensive Test Suite** - 100+ tests with plugin-specific unit tests
+- 🚀 **Bun Create Support** - One command to create new plugin projects
 
-> **💡 New to OpenCode plugin development?** Check out [REFERENCE.md](REFERENCE.md) for a comprehensive guide to all OpenCode resources, type definitions, and example implementations.
+> **💡 New to OpenCode plugin development?** Check out:
+> - [QUICKSTART.md](QUICKSTART.md) - 5-minute getting started guide
+> - [PLUGIN_BEST_PRACTICES.md](PLUGIN_BEST_PRACTICES.md) - Detailed plugin best practices
+> - [REFERENCE.md](REFERENCE.md) - Complete API reference
 
 ## Quick Start 🏃
 
-### 1. Use This Template
+### Method 1: Using Bun Create (Recommended)
+
+Create a new plugin project with one command:
+
+```bash
+bun create rothnic/opencode-plugin-template my-opencode-plugin
+cd my-opencode-plugin
+```
+
+The setup wizard will guide you through:
+1. Plugin name configuration
+2. Description and metadata
+3. Dependency installation
+4. Git hooks setup
+
+### Method 2: Use GitHub Template
 
 Click "Use this template" on GitHub or clone the repository:
 
 ```bash
 git clone https://github.com/rothnic/opencode-plugin-template.git my-plugin
 cd my-plugin
-```
-
-### 2. Install Dependencies
-
-```bash
 bun install
+bun run setup.ts  # Run setup wizard
 ```
 
-### 3. Set Up Git Hooks
+### Method 3: Manual Setup
 
 ```bash
-bun run prepare
+git clone https://github.com/rothnic/opencode-plugin-template.git my-plugin
+cd my-plugin
+bun install
+bun run prepare  # Set up git hooks
 ```
 
-### 4. Customize Your Plugin
+Then manually update:
+- `package.json` - name, description, author
+- `opencode.json` - plugin array
+- `README.md` - project details
 
-Edit the files in `.opencode/` to add your custom functionality:
+## What's Included
 
-- `.opencode/plugins/index.ts` - Main plugin entry point
-- `.opencode/tools/` - Add custom tools
-- `.opencode/agents/` - Define custom agents
-- `.opencode/skills/` - Add reusable skills
-- `.opencode/plugins/hooks.ts` - Implement plugin hooks
+### Plugin Structure (Organized & Scalable)
+
+```
+.opencode/
+├── agent/                    # Markdown-based agents
+│   ├── code-reviewer.md     # Example code review agent
+│   ├── doc-writer.md        # Documentation specialist
+│   └── template.md          # Template for new agents
+├── skill/                    # Markdown-based skills
+│   ├── systematic-debugging.md
+│   ├── safe-refactoring.md
+│   └── template.md
+├── plugins/                  # Main plugin code
+│   ├── index.ts             # Plugin entry point
+│   ├── types/
+│   │   └── index.ts         # Type definitions
+│   ├── utils/
+│   │   └── index.ts         # Logger, utilities
+│   ├── hooks/
+│   │   └── index.ts         # Hook implementations
+│   └── __tests__/           # Plugin tests
+│       ├── utils.test.ts
+│       ├── integration.test.ts
+│       └── README.md
+├── tools/                    # Custom tools
+│   └── example-tool.ts
+└── scripts/                  # Discoverable scripts
+    ├── debug-helper.ts
+    └── refactor-helper.ts
+```
+
+### Best Practices Built-In
+
+**✅ Structured Logging** - No console.log allowed
+```typescript
+const logger = new Logger(context, 'my-plugin');
+logger.info('Plugin started', { project: context.project.name });
+```
+
+**✅ Pre-commit Hooks** - Automatic checks
+- Detects console.log statements
+- Runs linting
+- Validates commit messages
+- Runs tests before push
+
+**✅ Security** - Built-in validation
+- Dangerous command detection
+- Sensitive data sanitization
+- Permission validation
+
+**✅ Testing** - Full test coverage
+- Plugin unit tests
+- Integration tests
+- Utility tests
+- Test documentation
+
+## Development Workflow
 
 ### 5. Test Your Plugin
 
