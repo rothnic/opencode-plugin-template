@@ -137,3 +137,15 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Bun
+bun.lockb
+.bun/
+
+# Build output
+dist/
+build/
+
+# Temporary files
+*.tmp
+.DS_Store

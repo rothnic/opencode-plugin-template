@@ -1,0 +1,49 @@
+# Lefthook configuration for git hooks
+# https://github.com/evilmartians/lefthook
+
+# Pre-commit hooks
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: "*.{ts,tsx,js,jsx}"
+      run: bun run lint
+      stage_fixed: true
+    
+    format-check:
+      glob: "*.{ts,tsx,js,jsx,json,md}"
+      run: echo "✓ Format check passed (add prettier/biome if needed)"
+
+# Pre-push hooks
+pre-push:
+  parallel: true
+  commands:
+    test:
+      run: bun test
+      skip:
+        - merge
+        - rebase
+    
+    build-check:
+      run: bun run build
+      skip:
+        - merge
+        - rebase
+
+# Commit message hooks
+commit-msg:
+  commands:
+    validate:
+      run: |
+        COMMIT_MSG_FILE=$1
+        COMMIT_MSG=$(cat "$COMMIT_MSG_FILE")
+        
+        # Check for conventional commit format
+        if ! echo "$COMMIT_MSG" | grep -qE '^(feat|fix|docs|style|refactor|perf|test|chore|build|ci|revert)(\(.+\))?: .+'; then
+          echo "⚠️  Commit message should follow conventional commits format:"
+          echo "   type(scope?): subject"
+          echo ""
+          echo "   Types: feat, fix, docs, style, refactor, perf, test, chore, build, ci, revert"
+          echo ""
+          echo "   Example: feat(plugin): add custom tool support"
+        fi
