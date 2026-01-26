@@ -10,7 +10,7 @@ import { describe, test, expect } from "bun:test";
 describe("OpenCode Integration Tests", () => {
   test("all plugin components can be imported", async () => {
     // Import all components
-    const pluginModule = await import("../.opencode/plugin/index");
+    const pluginModule = await import("../.opencode/plugins/{{PLUGIN_NAME}}/index");
     const toolsModule = await import("../.opencode/tools/example-tool");
     const agentsModule = await import("../.opencode/agents/example-agents");
     const skillsModule = await import("../.opencode/skills/example-skills");
@@ -22,7 +22,7 @@ describe("OpenCode Integration Tests", () => {
   });
 
   test("plugin can be loaded with all components", async () => {
-    const pluginModule = await import("../.opencode/plugin/index");
+    const pluginModule = await import("../.opencode/plugins/{{PLUGIN_NAME}}/index");
     const toolsModule = await import("../.opencode/tools/example-tool");
     const agentsModule = await import("../.opencode/agents/example-agents");
     const skillsModule = await import("../.opencode/skills/example-skills");
@@ -107,7 +107,7 @@ describe("Tool and Agent Compatibility Tests", () => {
 describe("Complete Plugin Registration Simulation", () => {
   test("simulate OpenCode plugin registration process", async () => {
     // 1. Load plugin
-    const pluginModule = await import("../.opencode/plugin/index");
+    const pluginModule = await import("../.opencode/plugins/{{PLUGIN_NAME}}/index");
     const mockContext = {
       project: { name: "test-project", path: "/test" },
       client: {},
@@ -158,7 +158,7 @@ describe("Complete Plugin Registration Simulation", () => {
   });
 
   test("plugin hooks can be invoked after registration", async () => {
-    const pluginModule = await import("../.opencode/plugin/index");
+    const pluginModule = await import("../.opencode/plugins/{{PLUGIN_NAME}}/index");
     const mockContext = {
       project: { name: "test", path: "/test" },
       client: {},
@@ -193,7 +193,7 @@ describe("Complete Plugin Registration Simulation", () => {
 
 describe("Error Handling Tests", () => {
   test("plugin handles invalid hook inputs gracefully", async () => {
-    const pluginModule = await import("../.opencode/plugin/index");
+    const pluginModule = await import("../.opencode/plugins/{{PLUGIN_NAME}}/index");
     const mockContext = {
       project: { name: "test", path: "/test" },
       client: {},
@@ -210,7 +210,7 @@ describe("Error Handling Tests", () => {
   });
 
   test("dangerous command detection works correctly", async () => {
-    const pluginModule = await import("../.opencode/plugin/index");
+    const pluginModule = await import("../.opencode/plugins/{{PLUGIN_NAME}}/index");
     const mockContext = {
       project: { name: "test", path: "/test" },
       client: {},
@@ -242,7 +242,7 @@ describe("Error Handling Tests", () => {
 
 describe("TypeScript Type Safety Tests", () => {
   test("plugin context types are properly defined", async () => {
-    const typesModule = await import("../.opencode/plugin/types");
+    const typesModule = await import("../.opencode/plugins/{{PLUGIN_NAME}}/types");
     
     // Types should be importable
     expect(typesModule).toBeDefined();

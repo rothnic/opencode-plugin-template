@@ -6,6 +6,7 @@
  */
 
 import * as fs from "fs/promises";
+import { existsSync } from "fs";
 import * as path from "path";
 
 const colors = {
@@ -54,9 +55,17 @@ async function main() {
 
   const cwd = process.cwd();
   const templateDir = path.join(cwd, "template");
+  
+  // Get plugin name from directory or prompt
+  const dirName = path.basename(cwd);
+  const pluginName = dirName.startsWith("opencode-plugin-") 
+    ? dirName.substring("opencode-plugin-".length)
+    : dirName;
+  
+  log(`Plugin name: ${pluginName}`, colors.green);
 
   // Copy template files
-  log("Copying template files...", colors.cyan);
+  log("\nCopying template files...", colors.cyan);
   const entries = await fs.readdir(templateDir, { withFileTypes: true });
   
   for (const entry of entries) {
@@ -76,6 +85,44 @@ async function main() {
       await fs.copyFile(src, dest);
       log(`  ✓ Copied ${entry.name}`, colors.green);
     }
+  }
+
+  // Replace {{PLUGIN_NAME}} placeholders in all files
+  log("\nConfiguring plugin...", colors.cyan);
+  const replaceInFile = async (filePath: string) => {
+    try {
+      const content = await fs.readFile(filePath, "utf-8");
+      const updated = content.replace(/\{\{PLUGIN_NAME\}\}/g, pluginName);
+      if (content !== updated) {
+        await fs.writeFile(filePath, updated);
+      }
+    } catch (error) {
+      // Ignore binary files and permission errors
+    }
+  };
+
+  // Recursively replace in all text files
+  const replaceInDir = async (dir: string) => {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        await replaceInDir(fullPath);
+      } else if (entry.name.match(/\.(ts|js|json|md|yml|yaml)$/)) {
+        await replaceInFile(fullPath);
+      }
+    }
+  };
+  
+  await replaceInDir(cwd);
+  log(`  ✓ Replaced {{PLUGIN_NAME}} with ${pluginName}`, colors.green);
+
+  // Rename the plugin directory from {{PLUGIN_NAME}} to actual plugin name
+  const pluginTemplateDir = path.join(cwd, ".opencode/plugins/{{PLUGIN_NAME}}");
+  const pluginActualDir = path.join(cwd, ".opencode/plugins", pluginName);
+  if (existsSync(pluginTemplateDir)) {
+    await fs.rename(pluginTemplateDir, pluginActualDir);
+    log(`  ✓ Renamed plugin directory to ${pluginName}`, colors.green);
   }
 
   // Ask about optional components

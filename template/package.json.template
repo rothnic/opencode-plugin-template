@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "{{PLUGIN_DESCRIPTION}}",
   "type": "module",
-  "main": "./.opencode/plugin/index.ts",
+  "main": "./.opencode/plugins/{{PLUGIN_NAME}}/index.ts",
   "files": [".opencode"],
   "scripts": {
     "dev": "bun run --watch index.ts",

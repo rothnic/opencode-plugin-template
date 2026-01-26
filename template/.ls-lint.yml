@@ -26,4 +26,4 @@ ignore:
   - dist
   - .git
   - "*.log"
-  - .opencode/plugin/*/state.json  # Ignore generated state files
+  - .opencode/plugins/{{PLUGIN_NAME}}/*/state.json  # Ignore generated state files
