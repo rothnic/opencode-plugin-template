@@ -7,7 +7,7 @@ This directory contains practical examples of how to use the OpenCode Plugin Tem
 A simple plugin that logs all tool executions:
 
 ```typescript
-// .opencode/plugins/logging-plugin.ts
+// .opencode/plugin/logging-plugin.ts
 export const LoggingPlugin = async (context) => {
   return {
     "tool.execute.before": async (input, output) => {
@@ -22,7 +22,7 @@ export const LoggingPlugin = async (context) => {
 Block dangerous commands:
 
 ```typescript
-// .opencode/plugins/security-plugin.ts
+// .opencode/plugin/security-plugin.ts
 export const SecurityPlugin = async (context) => {
   const DANGEROUS_PATTERNS = [
     /rm\s+-rf\s+\//,
@@ -51,7 +51,7 @@ export const SecurityPlugin = async (context) => {
 Automatically add headers to new TypeScript files:
 
 ```typescript
-// .opencode/plugins/template-plugin.ts
+// .opencode/plugin/template-plugin.ts
 export const TemplatePlugin = async (context) => {
   return {
     "file.create": async (input) => {
@@ -72,7 +72,7 @@ export const TemplatePlugin = async (context) => {
 Track tool usage:
 
 ```typescript
-// .opencode/plugins/analytics-plugin.ts
+// .opencode/plugin/analytics-plugin.ts
 export const AnalyticsPlugin = async (context) => {
   const stats = new Map<string, number>();
 
@@ -225,7 +225,7 @@ export const codeReviewSkill = {
 You can combine multiple plugins:
 
 ```typescript
-// .opencode/plugins/index.ts
+// .opencode/plugin/index.ts
 import { LoggingPlugin } from "./logging-plugin";
 import { SecurityPlugin } from "./security-plugin";
 

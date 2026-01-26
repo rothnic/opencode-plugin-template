@@ -18,7 +18,7 @@ __tests__/
 bun test
 
 # Run plugin tests specifically
-bun test .opencode/plugins/__tests__
+bun test .opencode/plugin/__tests__
 
 # Run with watch mode
 bun test --watch

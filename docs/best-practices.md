@@ -212,7 +212,7 @@ import type { MyPluginConfig } from "./types";
 1. Create a test project with OpenCode
 2. Symlink your plugin:
    ```bash
-   ln -s /path/to/plugin/.opencode/plugins/index.ts .opencode/plugins/test.ts
+   ln -s /path/to/plugin/.opencode/plugin/index.ts .opencode/plugin/test.ts
    ```
 3. Test various scenarios
 4. Check logs for errors

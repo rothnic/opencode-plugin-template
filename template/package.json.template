@@ -1,9 +1,10 @@
 {
-  "name": "opencode-plugin-template",
+  "name": "{{PLUGIN_NAME}}",
   "version": "0.1.0",
-  "description": "A template repository for quickly creating OpenCode plugins with best practices",
-  "main": "index.ts",
+  "description": "{{PLUGIN_DESCRIPTION}}",
   "type": "module",
+  "main": "./.opencode/plugin/index.ts",
+  "files": [".opencode"],
   "scripts": {
     "dev": "bun run --watch index.ts",
     "build": "bun build index.ts --outdir ./dist --target node",

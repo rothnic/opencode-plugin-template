@@ -6,7 +6,7 @@
  * 
  * Storage locations:
  * - Global: ~/.config/opencode/plugins/{plugin-name}/state.json
- * - Project: ./.opencode/plugins/{plugin-name}/state.json
+ * - Project: ./.opencode/plugin/{plugin-name}/state.json
  * 
  * Best practices:
  * - Use project-level state for project-specific data
@@ -25,7 +25,7 @@ import type { PluginContext } from "../types";
  */
 export enum StateLevel {
   GLOBAL = "global", // ~/.config/opencode/plugins/{plugin-name}/
-  PROJECT = "project", // ./.opencode/plugins/{plugin-name}/
+  PROJECT = "project", // ./.opencode/plugin/{plugin-name}/
 }
 
 /**

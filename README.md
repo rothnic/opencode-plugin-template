@@ -201,8 +201,8 @@ For local development, create a symlink in your project:
 
 ```bash
 # In your OpenCode project
-mkdir -p .opencode/plugins
-ln -s /path/to/my-plugin/.opencode/plugins/index.ts .opencode/plugins/my-plugin.ts
+mkdir -p .opencode/plugin
+ln -s /path/to/my-plugin/.opencode/plugin/index.ts .opencode/plugin/my-plugin.ts
 ```
 
 Or publish as an npm package and add to your `opencode.json`:
@@ -329,7 +329,7 @@ export const myAgent = {
 
 ### Implementing Hooks
 
-Hooks allow you to intercept and modify OpenCode's behavior. Edit `.opencode/plugins/hooks.ts` or `.opencode/plugins/index.ts`:
+Hooks allow you to intercept and modify OpenCode's behavior. Edit `.opencode/plugin/hooks.ts` or `.opencode/plugin/index.ts`:
 
 ```typescript
 export const MyPlugin = async (context) => {
@@ -412,7 +412,7 @@ Users can then install with:
 
 ### Option 2: Local Plugin
 
-Users can copy your `.opencode/plugins/` directory to their project's `.opencode/plugins/` folder.
+Users can copy your `.opencode/plugin/` directory to their project's `.opencode/plugin/` folder.
 
 ### Option 3: Git Repository
 
@@ -420,7 +420,7 @@ Users can clone your repository and symlink the plugin:
 
 ```bash
 git clone your-repo
-ln -s /path/to/your-plugin/.opencode/plugins/index.ts .opencode/plugins/your-plugin.ts
+ln -s /path/to/your-plugin/.opencode/plugin/index.ts .opencode/plugin/your-plugin.ts
 ```
 
 ## Examples 💡
@@ -430,7 +430,7 @@ Check the example files included in this template:
 - **Custom Tool**: `.opencode/tools/example-tool.ts`
 - **Custom Agents**: `.opencode/agents/example-agents.ts`
 - **Skills**: `.opencode/skills/example-skills.ts`
-- **Hooks**: `.opencode/plugins/hooks.ts`
+- **Hooks**: `.opencode/plugin/hooks.ts`
 
 ## Contributing 🤝
 

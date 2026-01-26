@@ -64,7 +64,7 @@ bun run prepare
 
 ### Edit the Main Plugin File
 
-Open `.opencode/plugins/index.ts` and customize the hooks:
+Open `.opencode/plugin/index.ts` and customize the hooks:
 
 ```typescript
 export const MyPlugin = async (context: PluginContext) => {
@@ -84,14 +84,14 @@ export const MyPlugin = async (context: PluginContext) => {
 In your OpenCode project:
 
 ```bash
-mkdir -p .opencode/plugins
-ln -s /path/to/your-plugin/.opencode/plugins/index.ts .opencode/plugins/my-plugin.ts
+mkdir -p .opencode/plugin
+ln -s /path/to/your-plugin/.opencode/plugin/index.ts .opencode/plugin/my-plugin.ts
 ```
 
 ### Option B: Copy Files
 
 ```bash
-cp -r /path/to/your-plugin/.opencode/plugins/* /your-project/.opencode/plugins/
+cp -r /path/to/your-plugin/.opencode/plugin/* /your-project/.opencode/plugin/
 ```
 
 ### Test It
@@ -196,7 +196,7 @@ Users can:
 
 ```bash
 git clone your-repo
-ln -s /path/to/repo/.opencode/plugins/index.ts .opencode/plugins/your-plugin.ts
+ln -s /path/to/repo/.opencode/plugin/index.ts .opencode/plugin/your-plugin.ts
 ```
 
 ### Option C: Share Files Directly

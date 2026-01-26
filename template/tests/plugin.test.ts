@@ -6,7 +6,7 @@
  */
 
 import { describe, test, expect, beforeAll } from "bun:test";
-import type { PluginContext } from "../.opencode/plugins/types";
+import type { PluginContext } from "../.opencode/plugin/types";
 
 describe("Plugin Structure Tests", () => {
   let plugin: any;
@@ -14,7 +14,7 @@ describe("Plugin Structure Tests", () => {
 
   beforeAll(async () => {
     // Import the plugin
-    const pluginModule = await import("../.opencode/plugins/index");
+    const pluginModule = await import("../.opencode/plugin/index");
     plugin = pluginModule.MyPlugin;
 
     // Create mock context
@@ -103,7 +103,7 @@ describe("Plugin Hook Behavior Tests", () => {
       worktree: { branch: "main", commit: "abc123" },
     };
 
-    const pluginModule = await import("../.opencode/plugins/index");
+    const pluginModule = await import("../.opencode/plugin/index");
     hooks = await pluginModule.MyPlugin(mockContext);
   });
 
@@ -148,7 +148,7 @@ describe("Plugin Hook Behavior Tests", () => {
 
 describe("Plugin Context Tests", () => {
   test("plugin should receive and use context correctly", async () => {
-    const pluginModule = await import("../.opencode/plugins/index");
+    const pluginModule = await import("../.opencode/plugin/index");
     
     const customContext: PluginContext = {
       project: {

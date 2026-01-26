@@ -82,7 +82,7 @@ export const MyPlugin = async (context: PluginContext): Promise<PluginHooks> => 
 
   // Initialize state manager
   // State can be stored at:
-  // - StateLevel.PROJECT: ./.opencode/plugins/my-plugin/state.json
+  // - StateLevel.PROJECT: ./.opencode/plugin/my-plugin/state.json
   // - StateLevel.GLOBAL: ~/.config/opencode/plugins/my-plugin/state.json
   const stateManager = createStateManager<MyPluginState>(context, "my-plugin");
   

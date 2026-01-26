@@ -83,7 +83,7 @@ export const MyPlugin = async (context) => {
 };
 ```
 
-**This template provides a Logger utility** in `.opencode/plugins/utils/index.ts` that:
+**This template provides a Logger utility** in `.opencode/plugin/utils/index.ts` that:
 - Uses `client.app.log()` when available
 - Falls back to `process.stderr` for development
 - Automatically sanitizes sensitive data
@@ -117,7 +117,7 @@ if (process.env.DEBUG) {
 ### ✅ Organize by Subdirectories
 
 ```
-.opencode/plugins/
+.opencode/plugin/
 ├── index.ts           # Main plugin entry point
 ├── types/
 │   └── index.ts       # Type definitions
@@ -347,7 +347,7 @@ const ALLOWED_TOOLS = ['view', 'grep', 'web_search'];
 ### ✅ Write Tests for Your Plugin
 
 ```typescript
-// .opencode/plugins/__tests__/integration.test.ts
+// .opencode/plugin/__tests__/integration.test.ts
 import { describe, test, expect } from "bun:test";
 
 describe("Plugin Integration", () => {
@@ -376,7 +376,7 @@ describe("Plugin Integration", () => {
 ### ✅ Test Utilities Separately
 
 ```typescript
-// .opencode/plugins/__tests__/utils.test.ts
+// .opencode/plugin/__tests__/utils.test.ts
 import { describe, test, expect } from "bun:test";
 import { isDangerousCommand, sanitizeForLog } from "../utils";
 
@@ -624,7 +624,7 @@ pre-commit:
     no-console-log:
       glob: ".opencode/**/*.{ts,tsx,js,jsx}"
       run: |
-        if grep -rn "console\.\(log\|info\)" .opencode/plugins/; then
+        if grep -rn "console\.\(log\|info\)" .opencode/plugin/; then
           echo "❌ console.log found! Use Logger utility instead."
           exit 1
         fi

@@ -154,7 +154,7 @@ export const MyPlugin = async (context: PluginContext) => {
 
 ### Where is state stored?
 
-- **Project-level**: `./.opencode/plugins/{plugin-name}/state.json`
+- **Project-level**: `./.opencode/plugin/{plugin-name}/state.json`
 - **Global-level**: `~/.config/opencode/plugins/{plugin-name}/state.json`
 
 State files are automatically created when you save state for the first time.
@@ -434,7 +434,7 @@ export const myCustomTool = {
 ### How do I register custom tools in my plugin?
 
 ```typescript
-// .opencode/plugins/index.ts
+// .opencode/plugin/index.ts
 import { myCustomTool } from "../tools/my-tool";
 
 export const MyPlugin = async (context: PluginContext) => {
@@ -587,7 +587,7 @@ Before using this skill, review:
 
 This template includes comprehensive test examples:
 
-**Unit Tests** (`.opencode/plugins/*.test.ts`):
+**Unit Tests** (`.opencode/plugin/*.test.ts`):
 
 ```typescript
 import { describe, test, expect } from "bun:test";
@@ -611,7 +611,7 @@ describe("Security Utilities", () => {
 
 ```typescript
 import { describe, test, expect } from "bun:test";
-import { MyPlugin } from "../.opencode/plugins";
+import { MyPlugin } from "../.opencode/plugin";
 
 describe("Plugin Integration", () => {
   test("plugin initializes correctly", async () => {
@@ -631,7 +631,7 @@ describe("Plugin Integration", () => {
 bun test
 
 # Run specific test file
-bun test .opencode/plugins/utils.test.ts
+bun test .opencode/plugin/utils.test.ts
 
 # Run tests in watch mode
 bun test --watch
@@ -691,13 +691,13 @@ cp -r path/to/your-plugin/.opencode/* my-project/.opencode/
 
 ```bash
 cd my-project
-git submodule add https://github.com/you/plugin.git .opencode/plugins/your-plugin
+git submodule add https://github.com/you/plugin.git .opencode/plugin/your-plugin
 ```
 
 **Option 3: Symlink for local development**
 
 ```bash
-ln -s /path/to/your-plugin/.opencode/plugins/index.ts .opencode/plugins/my-plugin.ts
+ln -s /path/to/your-plugin/.opencode/plugin/index.ts .opencode/plugin/my-plugin.ts
 ```
 
 ---
@@ -709,7 +709,7 @@ ln -s /path/to/your-plugin/.opencode/plugins/index.ts .opencode/plugins/my-plugi
 Create an uninstall script in your plugin:
 
 ```typescript
-// .opencode/plugins/uninstall.ts
+// .opencode/plugin/uninstall.ts
 import { StateLevel, createStateManager } from "./state";
 import type { PluginContext } from "./types";
 
@@ -730,8 +730,8 @@ export async function uninstall(context: PluginContext) {
 
 | Type | Location | Cleanup |
 |------|----------|---------|
-| Plugin code | `./.opencode/plugins/` or `node_modules/` | Remove package or delete directory |
-| Project state | `./.opencode/plugins/{name}/state.json` | Delete file or use `stateManager.clear()` |
+| Plugin code | `./.opencode/plugin/` or `node_modules/` | Remove package or delete directory |
+| Project state | `./.opencode/plugin/{name}/state.json` | Delete file or use `stateManager.clear()` |
 | Global state | `~/.config/opencode/plugins/{name}/` | Delete directory |
 | Project config | `./opencode.json` | Remove plugin from config |
 | Global config | `~/.config/opencode/opencode.json` | Remove plugin config section |

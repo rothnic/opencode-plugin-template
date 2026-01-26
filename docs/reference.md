@@ -66,7 +66,7 @@ OpenCode is a TypeScript/Bun-based monorepo with 15+ workspace packages. Underst
 
 - **Monorepo**: Bun workspaces with Turbo orchestration
 - **TypeScript**: Full type safety across all packages
-- **Plugin System**: JavaScript/TypeScript plugins from `.opencode/plugins/`
+- **Plugin System**: JavaScript/TypeScript plugins from `.opencode/plugin/`
 - **Tool System**: Custom tools in `.opencode/tools/` with MCP server integration
 - **UI**: OpenTUI library (@opentui/core) for terminal interface
 - **Config**: Layered configuration (global, project, remote, env)
@@ -179,13 +179,13 @@ Plugins are TypeScript/JavaScript modules that export a function receiving a con
 | Location | Type | Description |
 |----------|------|-------------|
 | `~/.config/opencode/plugins/` | Global | System-wide plugins |
-| `.opencode/plugins/` | Project | Project-specific plugins |
+| `.opencode/plugin/` | Project | Project-specific plugins |
 | NPM package | External | Installed via package manager |
 
 ### Basic Plugin Template
 
 ```typescript
-// .opencode/plugins/my-plugin.ts
+// .opencode/plugin/my-plugin.ts
 import type { Plugin } from "@opencode-ai/plugin";
 
 export const MyPlugin: Plugin = async (context) => {
@@ -500,7 +500,7 @@ Enable or disable tools:
 ### Security Plugin - Block Dangerous Commands
 
 ```typescript
-// .opencode/plugins/security.ts
+// .opencode/plugin/security.ts
 import type { Plugin } from "@opencode-ai/plugin";
 
 const DANGEROUS_PATTERNS = [
@@ -530,7 +530,7 @@ export default SecurityPlugin;
 ### Notification Plugin - Session Complete
 
 ```typescript
-// .opencode/plugins/notifications.ts
+// .opencode/plugin/notifications.ts
 import type { Plugin } from "@opencode-ai/plugin";
 import notifier from "node-notifier";
 
@@ -549,7 +549,7 @@ export default NotificationPlugin;
 ### File Protection Plugin
 
 ```typescript
-// .opencode/plugins/protect-env.ts
+// .opencode/plugin/protect-env.ts
 import type { Plugin } from "@opencode-ai/plugin";
 
 export const ProtectEnvPlugin: Plugin = (context) => ({
@@ -566,7 +566,7 @@ export default ProtectEnvPlugin;
 ### Logging Plugin - Track Tool Usage
 
 ```typescript
-// .opencode/plugins/logging.ts
+// .opencode/plugin/logging.ts
 import type { Plugin } from "@opencode-ai/plugin";
 
 export const LoggingPlugin: Plugin = (context) => {
@@ -593,7 +593,7 @@ export default LoggingPlugin;
 ### Template Plugin - Auto-add File Headers
 
 ```typescript
-// .opencode/plugins/templates.ts
+// .opencode/plugin/templates.ts
 import type { Plugin } from "@opencode-ai/plugin";
 
 export const TemplatePlugin: Plugin = (context) => ({
@@ -676,7 +676,7 @@ Quick reference for key OpenCode concepts relevant to plugin development.
 
 | Component | Global Location | Project Location | NPM Package |
 |-----------|-----------------|------------------|-------------|
-| **Plugins** | `~/.config/opencode/plugins/` | `.opencode/plugins/` | ✓ |
+| **Plugins** | `~/.config/opencode/plugins/` | `.opencode/plugin/` | ✓ |
 | **Tools** | `~/.config/opencode/tools/` | `.opencode/tools/` | ✗ |
 | **Agents** | `~/.config/opencode/agents/` | `.opencode/agents/` | ✗ |
 | **Skills** | `~/.config/opencode/skills/` | `.opencode/skills/` | ✗ |
