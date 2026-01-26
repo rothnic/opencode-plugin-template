@@ -13,6 +13,8 @@ A comprehensive template for creating OpenCode plugins with best practices, exte
 - 📦 **Version Management** - Built-in version bumping and release management
 - 🎨 **TypeScript Support** - Full type safety with Bun runtime
 
+> **💡 New to OpenCode plugin development?** Check out [REFERENCE.md](REFERENCE.md) for a comprehensive guide to all OpenCode resources, type definitions, and example implementations.
+
 ## Quick Start 🏃
 
 ### 1. Use This Template
@@ -268,10 +270,26 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ## Resources 📚
 
+### Documentation
+
+- **[📖 REFERENCE.md](REFERENCE.md)** - Comprehensive reference guide with all OpenCode resources
 - [OpenCode Documentation](https://opencode.ai/docs/)
 - [OpenCode Plugins Guide](https://opencode.ai/docs/plugins/)
+- [OpenCode Custom Tools](https://opencode.ai/docs/custom-tools/)
+- [OpenCode SDK](https://opencode.ai/docs/sdk/)
+- [OpenCode Configuration](https://opencode.ai/docs/config/)
+
+### Community Resources
+
+- [Awesome OpenCode](https://github.com/awesome-opencode/awesome-opencode) - Curated list of plugins
+- [OpenCode Workflows](https://github.com/IgorWarzocha/Opencode-Workflows) - Example workflows
+- [OpenCode Plugin Manual](https://github.com/Laelia-Succubus/Opencode-Plugin-Manual) - Community guide
+
+### Development Tools
+
 - [Lefthook Documentation](https://github.com/evilmartians/lefthook)
 - [Bun Documentation](https://bun.sh/docs)
+- [Zod Schema Validation](https://zod.dev/)
 
 ## Support 💬
 

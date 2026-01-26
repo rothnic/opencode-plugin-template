@@ -2,6 +2,8 @@
 
 Get started with the OpenCode Plugin Template in 5 minutes!
 
+> **📚 Looking for detailed API references?** See [REFERENCE.md](REFERENCE.md) for comprehensive documentation on OpenCode SDK, types, hooks, and configuration.
+
 ## Prerequisites
 
 - [Bun](https://bun.sh/) >= 1.0.0 (or Node.js >= 18.0.0)
@@ -225,16 +227,18 @@ bun run version:bump major   # 0.2.0 -> 1.0.0
 ## Next Steps
 
 1. Read the [README.md](README.md) for detailed documentation
-2. Check [BEST_PRACTICES.md](BEST_PRACTICES.md) for guidelines
-3. View [examples/README.md](examples/README.md) for code examples
-4. Read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to contribute
+2. **Check [REFERENCE.md](REFERENCE.md) for comprehensive API references and resource links**
+3. Review [BEST_PRACTICES.md](BEST_PRACTICES.md) for development guidelines
+4. View [examples/README.md](examples/README.md) for practical code examples
+5. Read [CONTRIBUTING.md](CONTRIBUTING.md) if you want to contribute
 
 ## Getting Help
 
+- **[REFERENCE.md](REFERENCE.md)** - Complete reference guide with all OpenCode resources
 - Check the [OpenCode documentation](https://opencode.ai/docs/)
+- Browse [Awesome OpenCode](https://github.com/awesome-opencode/awesome-opencode) for community plugins
 - Review example plugins in the `examples/` directory
 - Open an issue on GitHub
-- Check existing OpenCode plugins for inspiration
 
 ## Tips
 
