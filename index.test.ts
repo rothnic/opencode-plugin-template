@@ -12,8 +12,8 @@ describe("Plugin Tests", () => {
     expect(true).toBe(true);
   });
 
-  test("version format", () => {
-    const packageJson = require("./package.json");
+  test("version format", async () => {
+    const packageJson = await import("./package.json");
     expect(packageJson.version).toMatch(/^\d+\.\d+\.\d+$/);
   });
 });

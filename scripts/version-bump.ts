@@ -70,18 +70,27 @@ async function updateVersionInFile(
 }
 
 /**
+ * Type guard for version type
+ */
+function isValidVersionType(type: string): type is VersionType {
+  return ["major", "minor", "patch"].includes(type);
+}
+
+/**
  * Main function
  */
 async function main() {
   const args = process.argv.slice(2);
-  const versionType = (args[0] || "patch") as VersionType;
+  const versionTypeInput = args[0] || "patch";
 
-  if (!["major", "minor", "patch"].includes(versionType)) {
+  if (!isValidVersionType(versionTypeInput)) {
     console.error(
       "❌ Invalid version type. Use: major, minor, or patch"
     );
     process.exit(1);
   }
+
+  const versionType = versionTypeInput;
 
   const rootDir = process.cwd();
   const packageJsonPath = join(rootDir, "package.json");
