@@ -1,65 +1,27 @@
-/**
- * Example custom tool
- * 
- * This demonstrates how to add custom tools to your OpenCode plugin.
- * Tools can be registered to extend OpenCode's capabilities.
- */
-
-export interface CustomToolInput {
+export interface ExampleToolInput {
   query: string;
-  options?: {
-    verbose?: boolean;
-  };
 }
 
-export interface CustomToolOutput {
+export interface ExampleToolResult {
   result: string;
-  metadata?: any;
 }
 
-/**
- * Example custom tool implementation
- */
-export async function exampleCustomTool(
-  input: CustomToolInput
-): Promise<CustomToolOutput> {
-  const { query, options } = input;
-
-  // Add your custom tool logic here
-  console.log(`🔧 Executing custom tool with query: ${query}`);
-
+export async function exampleCustomTool(input: ExampleToolInput): Promise<ExampleToolResult> {
   return {
-    result: `Processed: ${query}`,
-    metadata: {
-      timestamp: new Date().toISOString(),
-      verbose: options?.verbose || false,
-    },
+    result: `Processed: ${input.query}`,
   };
 }
 
-/**
- * Tool registration helper
- * Use this to register your custom tools with OpenCode
- */
 export const customTools = {
   exampleCustomTool: {
     name: "example_custom_tool",
-    description: "An example custom tool for demonstration",
+    description: "Example custom tool template",
     inputSchema: {
       type: "object",
       properties: {
         query: {
           type: "string",
           description: "The query to process",
-        },
-        options: {
-          type: "object",
-          properties: {
-            verbose: {
-              type: "boolean",
-              description: "Enable verbose output",
-            },
-          },
         },
       },
       required: ["query"],

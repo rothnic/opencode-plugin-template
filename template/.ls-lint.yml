@@ -1,21 +1,13 @@
-# ls-lint configuration for generated plugins
-# This will be copied to the user's plugin project when using bun create
-# NOTE: We don't require .opencode folders since users may not use all features
-
 ls:
   ./:
     .dir: kebab-case
     .ts: kebab-case
-    .md: kebab-case | SCREAMING_SNAKE_CASE  # Allow README.md, AGENTS.md
+    .md: kebab-case | SCREAMING_SNAKE_CASE
     .json: kebab-case
     .yml: kebab-case | .ls-lint.yml
     .yaml: kebab-case
-  
-  # If users create a docs directory, enforce kebab-case only
   docs:
     .md: kebab-case
-  
-  # Allow .opencode directory but don't require it
   .opencode:
     .dir: kebab-case
     .ts: kebab-case
@@ -25,5 +17,5 @@ ignore:
   - node_modules
   - dist
   - .git
+  - .opencode/state
   - "*.log"
-  - .opencode/plugins/{{PLUGIN_NAME}}/*/state.json  # Ignore generated state files

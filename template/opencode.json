@@ -1,5 +1,0 @@
-{
-  "plugin": [],
-  "customInstructions": "This is an OpenCode plugin template repository. Plugins should follow the structure defined in .opencode/plugins/{{PLUGIN_NAME}}/",
-  "version": "0.1.0"
-}

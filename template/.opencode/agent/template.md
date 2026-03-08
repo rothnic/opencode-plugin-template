@@ -1,74 +1,28 @@
 ---
-# Agent Configuration - Comprehensive Template
-# This demonstrates ALL available agent configuration options and best practices
-
-name: "{{AGENT_NAME}}"
-description: "{{Brief one-line description}}"
-
-# Mode: "primary" | "code" | "general"
-mode: primary
-
-# Model selection
+name: your-agent-name
+description: Briefly describe what this agent is responsible for.
+mode: code
 model: anthropic/claude-sonnet-4-5
-
-# Temperature (0.0 - 1.0)
-temperature: 0.7
-
-# Permissions
-permission:
-  view: allow
-  edit: ask
-  create: ask
-  bash: deny
-
-# System prompt
+temperature: 0.2
 prompt: |
-  {{Define the agent's role and behavior}}
-
-# Optional: Tools
-# tools:
-#   - read_file
-#   - write_file
-#   - grep
-
-# Optional: Extend existing agent
-# extends: "@opencode-ai/agents/code-review"
-
-# Optional: Reference files
-# files:
-#   - path: ./docs/standards.md
-#     description: "Coding standards"
-#   - path: ./.opencode/skill/workflow.md
-#     description: "Related workflow"
-
+  Describe the role, boundaries, and output expectations for this agent.
 ---
 
-# {{AGENT_NAME}}
+# your-agent-name
 
 ## Purpose
 
-{{What this agent does and when to use it}}
+Explain when this agent should be used and when it should not be used.
 
-## Responsibilities
+## Inputs the agent can rely on
 
-1. {{Primary responsibility}}
-2. {{Secondary responsibility}}
+- `@./docs/using-the-template.md`
+- `@./.opencode/skill/template.md`
+- `@./docs/team-standards.md` _(add this file if you need it)_
 
-## Examples
+## Checklist for filling out this template
 
-### Example 1: {{Scenario}}
-
-**Input:** `{{example input}}`
-**Output:** `{{example output}}`
-
-## Related Resources
-
-- [{{SKILL}}](./.opencode/skill/{{FILE}}.md)
-- [{{DOC}}](./docs/{{FILE}}.md)
-
-## Best Practices
-
-1. Be specific about the agent's role
-2. Use files/skills for additional context
-3. Provide concrete examples
-4. Test before deploying
+- Define the agent's single responsibility.
+- State what good output looks like.
+- List the files or skills the agent should reference.
+- Add any tool constraints or escalation rules in the prompt.

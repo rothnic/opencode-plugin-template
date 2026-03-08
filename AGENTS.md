@@ -1,65 +1,25 @@
-# OpenCode Agents
+# Agents in this template
 
-This file documents the custom agents available in this plugin.
+This repository ships a **single starter agent template** for generated plugins.
 
-## Available Agents
+- Template source in this repository: `template/.opencode/agent/template.md`
+- Location after `bun create`: `.opencode/agent/template.md`
 
-### {{AGENT_NAME}}
+## Why only one template?
 
-**Location:** `.opencode/agent/{{agent-file}}.md`
+This repository is a template, not an example plugin collection. The generated project should show the structure of a good custom agent once, then let the user duplicate and tailor it.
 
-**Purpose:** {{Brief description of what this agent does}}
+## What the starter agent covers
 
-**When to Use:**
-- {{Use case 1}}
-- {{Use case 2}}
+The starter agent template is intentionally conservative:
 
-**Configuration:**
-- Mode: `{{mode}}`
-- Model: `{{model}}`
-- Temperature: `{{temperature}}`
+- minimal frontmatter,
+- a clear purpose section,
+- a list of file references the agent can rely on,
+- a checklist that helps a developer or coding agent finish the template without outside research.
 
-**Example Usage:**
-```bash
-# The agent is automatically available when the plugin is installed
-# OpenCode will discover it in the .opencode/agent/ directory
-```
+## Related docs
 
-## Creating Custom Agents
-
-See the [Agent Template](./.opencode/agent/template.md) for a comprehensive guide on creating new agents.
-
-### Quick Start
-
-1. Copy the agent template:
-   ```bash
-   cp .opencode/agent/template.md .opencode/agent/my-agent.md
-   ```
-
-2. Fill in the configuration and documentation
-
-3. Test the agent with various inputs
-
-4. Reference from skills or other agents as needed
-
-## Best Practices
-
-- Keep agents focused on a single responsibility
-- Provide clear examples of expected behavior
-- Use external files for context (docs, standards)
-- Reference related skills and other agents
-- Test thoroughly before deploying
-- Document version changes
-
-## Related Documentation
-
-- [How-To Guide](./docs/how-to.md) - Detailed guide on working with agents
-- [Plugin Best Practices](./docs/plugin-best-practices.md) - General plugin development guidelines
-- [Reference](./docs/reference.md) - Complete OpenCode reference
-
-## Support
-
-For questions or issues with agents, please refer to:
-- [OpenCode Documentation](https://opencode.ai/docs)
-- [Plugin Development Guide](./docs/plugin-best-practices.md)
-- [GitHub Issues]({{YOUR_REPO_URL}}/issues)
+- [Quickstart](docs/quickstart.md)
+- [Reference](docs/reference.md)
+- [Plugin Best Practices](docs/plugin-best-practices.md)

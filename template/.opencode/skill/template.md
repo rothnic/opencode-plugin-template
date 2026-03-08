@@ -1,32 +1,25 @@
 ---
-name: {{SKILL_NAME}}
-description: {{SKILL_DESCRIPTION}}
-license: MIT
-compatibility: opencode
-metadata:
-  tags: [{{tag1}}, {{tag2}}]
-  category: {{category}}
-  difficulty: {{beginner|intermediate|advanced}}
+name: your-skill-name
+description: Briefly describe the workflow or capability this skill captures.
 ---
 
-# {{SKILL_NAME}}
+# your-skill-name
 
-{{Describe the skill and when to use it}}
+## When to use this skill
 
-## Overview
-
-{{Provide an overview of what this skill accomplishes}}
+Explain the trigger or situation that should cause OpenCode to use this skill.
 
 ## Steps
 
-1. {{First step}}
-2. {{Second step}}
-3. {{Continue as needed}}
+1. Describe the first step.
+2. Describe the second step.
+3. Add any checks or exit criteria.
 
-## Examples
+## Inputs and references
 
-{{Provide examples of using this skill}}
+- `@./docs/using-the-template.md`
+- `@./docs/team-standards.md` _(optional)_
 
-## Related Resources
+## Expected result
 
-{{Link to related skills, tools, or documentation}}
+Describe the observable outcome this skill should help produce.

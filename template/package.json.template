@@ -3,41 +3,35 @@
   "version": "0.1.0",
   "description": "{{PLUGIN_DESCRIPTION}}",
   "type": "module",
-  "main": "./.opencode/plugins/{{PLUGIN_NAME}}/index.ts",
-  "files": [".opencode"],
+  "main": "./index.ts",
+  "files": [
+    "index.ts",
+    ".opencode",
+    "README.md",
+    "docs",
+    "scripts"
+  ],
   "scripts": {
-    "dev": "bun run --watch index.ts",
-    "build": "bun build index.ts --outdir ./dist --target node",
-    "test": "bun test",
-    "lint": "bun run lslint check",
+    "test": "bun test tests/plugin.test.ts",
+    "lint": "ls-lint",
     "prepare": "lefthook install",
     "version:bump": "bun run scripts/version-bump.ts"
   },
   "keywords": [
     "opencode",
     "plugin",
-    "template",
     "ai",
-    "automation",
-    "bun-create"
+    "automation"
   ],
-  "author": "",
-  "license": "MIT",
-  "dependencies": {
-    "@opencode-ai/plugin": "latest"
-  },
+  "author": "{{PLUGIN_AUTHOR}}",
+  "license": "{{PLUGIN_LICENSE}}",
   "devDependencies": {
+    "@opencode-ai/plugin": "latest",
     "@types/bun": "latest",
     "lefthook": "^1.6.0",
-    "lslint": "^0.0.2"
-  },
-  "peerDependencies": {
-    "bun": ">=1.0.0"
+    "@ls-lint/ls-lint": "^2.3.1"
   },
   "engines": {
     "bun": ">=1.0.0"
-  },
-  "bunCreate": {
-    "postinstall": ["bun run setup.ts"]
   }
 }
