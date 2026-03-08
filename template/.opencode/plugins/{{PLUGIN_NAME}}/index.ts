@@ -6,6 +6,7 @@ import { Logger } from "./utils";
 // import { createConfigManager } from "./config";
 // import { createStateManager, StateLevel } from "./state";
 // import { PluginDatabase } from "./database";
+// import { exampleTool } from "../../tools/example-tool";
 
 export const MyPlugin: Plugin = async (context: PluginContext): Promise<PluginHooks> => {
   const logger = new Logger(context, {
@@ -28,7 +29,13 @@ export const MyPlugin: Plugin = async (context: PluginContext): Promise<PluginHo
   // });
   // database.set("last-session", { startedAt: new Date().toISOString() });
 
-  return registerHooks(logger);
+  return {
+    ...registerHooks(logger),
+    // Register bundled custom tools by uncommenting the block below.
+    // tool: {
+    //   "example-custom-tool": exampleTool,
+    // },
+  };
 };
 
 export default MyPlugin;

@@ -13,3 +13,4 @@ ignore:
   - README.md
   - AGENTS.md
   - .ls-lint.yml
+  - .opencode/skills/*/SKILL.md

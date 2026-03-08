@@ -4,7 +4,7 @@ A `bun create` template for building an OpenCode plugin repository that is ready
 
 - ship as an npm package,
 - be tested locally as a project plugin under `.opencode/plugins/<plugin-name>/`, and
-- grow into agents, skills, custom tools, config, and state only when those pieces are actually needed.
+- grow into agents, commands, skills, custom tools, config, state, and project instructions only when those pieces are actually needed.
 
 ## What is in this repository?
 
@@ -13,7 +13,7 @@ This repository is the template source, not the generated plugin itself.
 - `template/` contains the files that will become the generated plugin repository.
 - `setup.ts` runs after `bun create` and applies template variables.
 - `docs/` documents how the template is structured and why.
-- `tests/template-smoke.test.ts` verifies that the template can scaffold a usable plugin project.
+- `tests/template-smoke.test.ts` verifies that the template can scaffold a usable plugin project and that the starter OpenCode assets stay valid.
 
 ## Use it with bun create
 
@@ -30,7 +30,7 @@ During setup, the template will:
 - strip the common `opencode-plugin-` prefix when that prefix is present,
 - ask for description, author, and license,
 - rename `.opencode/plugins/{{PLUGIN_NAME}}/` to the real plugin name,
-- optionally remove the agent, skill, tool, config, state, or SQLite starter files you do not want.
+- optionally remove the agents, commands, skills, tool, config, state, or SQLite starter files you do not want.
 
 ## What the generated plugin looks like
 
@@ -45,8 +45,9 @@ During setup, the template will:
 │   │       ├── config/   # optional helper
 │   │       ├── state/    # optional helper
 │   │       └── database/ # optional helper (bun:sqlite)
-│   ├── agent/            # optional template
-│   ├── skill/            # optional template
+│   ├── agents/           # optional bundled agent starter
+│   ├── commands/         # optional bundled command starter
+│   ├── skills/           # optional bundled skill starter
 │   └── tools/            # optional template
 ├── docs/
 ├── tests/
@@ -61,8 +62,9 @@ The generated project intentionally starts small:
 
 - one plugin package entry point,
 - one smoke test,
-- one agent template,
-- one skill template,
+- one bundled agent starter,
+- one bundled command starter,
+- one bundled skill starter,
 - one custom tool template,
 - optional config, state, and local SQLite helpers.
 - a generated Logger helper that wraps `client.app.log()` and acts as the single extension point for future log destinations.
@@ -90,5 +92,16 @@ Generated `lefthook.yml` enforces this in two stages:
 
 - `pre-commit`: warns when direct `console.*` logging appears in plugin code,
 - `pre-push`: blocks the push until those calls are removed.
+
+## Bundled OpenCode assets in the generated project
+
+The generated project shows the documented auto-discovery paths for OpenCode components:
+
+- agents live in `.opencode/agents/*.md`,
+- commands live in `.opencode/commands/*.md`,
+- skills live in `.opencode/skills/<name>/SKILL.md`,
+- instructions live in `AGENTS.md` and can be split into additional files through `opencode.json`'s `instructions` field if you add one later.
+
+The smoke test validates the starter agent, command, and skill shapes so invalid examples do not slip into the generated project.
 
 See [docs/quickstart.md](docs/quickstart.md), [docs/reference.md](docs/reference.md), and [docs/plugin-analysis.md](docs/plugin-analysis.md) for the supporting details.

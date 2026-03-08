@@ -2,8 +2,8 @@
 
 This repository ships a **single starter agent template** for generated plugins.
 
-- Template source in this repository: `template/.opencode/agent/template.md`
-- Location after `bun create`: `.opencode/agent/template.md`
+- Template source in this repository: `template/.opencode/agents/template.md`
+- Location after `bun create`: `.opencode/agents/template.md`
 
 ## Why only one template?
 

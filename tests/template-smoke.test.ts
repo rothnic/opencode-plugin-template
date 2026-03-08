@@ -12,6 +12,23 @@ function copyTemplateRepo(destination: string) {
   });
 }
 
+async function readFrontmatter(filePath: string) {
+  const content = await Bun.file(filePath).text();
+  const match = content.match(/^---\n([\s\S]*?)\n---\n?/);
+  if (!match) {
+    throw new Error(`Missing frontmatter in ${filePath}`);
+  }
+  return match[1];
+}
+
+function topLevelFrontmatterKeys(frontmatter: string) {
+  return frontmatter
+    .split("\n")
+    .map((line) => line.trimEnd())
+    .filter((line) => line.length > 0 && !line.trimStart().startsWith("#") && !line.startsWith(" ") && line.includes(":"))
+    .map((line) => line.split(":")[0]!.trim());
+}
+
 describe("template smoke test", () => {
   test("scaffolds a usable plugin project and supports local plugin linking", async () => {
     const workspace = mkdtempSync(join(tmpdir(), "opencode-plugin-template-"));
@@ -29,6 +46,7 @@ describe("template smoke test", () => {
         OPENCODE_TEMPLATE_PLUGIN_LICENSE: "MIT",
         OPENCODE_TEMPLATE_KEEP_AGENT: "y",
         OPENCODE_TEMPLATE_KEEP_SKILL: "y",
+        OPENCODE_TEMPLATE_KEEP_COMMAND: "y",
         OPENCODE_TEMPLATE_KEEP_TOOL: "y",
         OPENCODE_TEMPLATE_KEEP_STATE: "y",
         OPENCODE_TEMPLATE_KEEP_DATABASE: "y",
@@ -43,11 +61,31 @@ describe("template smoke test", () => {
     expect(existsSync(join(generatedProject, ".github"))).toBe(false);
     expect(existsSync(join(generatedProject, ".opencode", "plugins", "smoke-plugin", "index.ts"))).toBe(true);
     expect(existsSync(join(generatedProject, ".opencode", "plugins", "smoke-plugin", "database", "index.ts"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "agents", "template.md"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "commands", "template.md"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "skills", "template", "SKILL.md"))).toBe(true);
     expect(existsSync(join(generatedProject, "tests", "plugin.test.ts"))).toBe(true);
 
     const pkg = (await Bun.file(join(generatedProject, "package.json")).json()) as Record<string, unknown>;
     expect(pkg).toMatchObject({ name: "smoke-plugin" });
     expect(pkg).not.toHaveProperty("bun-create");
+
+    const agentFrontmatter = await readFrontmatter(join(generatedProject, ".opencode", "agents", "template.md"));
+    expect(topLevelFrontmatterKeys(agentFrontmatter)).toEqual(["description", "mode"]);
+    expect(agentFrontmatter).toContain("mode: subagent");
+
+    const commandFrontmatter = await readFrontmatter(join(generatedProject, ".opencode", "commands", "template.md"));
+    expect(topLevelFrontmatterKeys(commandFrontmatter)).toEqual(["description"]);
+
+    const skillFrontmatter = await readFrontmatter(join(generatedProject, ".opencode", "skills", "template", "SKILL.md"));
+    expect(topLevelFrontmatterKeys(skillFrontmatter)).toEqual(["name", "description"]);
+    expect(skillFrontmatter).toContain("name: template");
+
+    const toolStarter = await Bun.file(join(generatedProject, ".opencode", "tools", "example-tool.ts")).text();
+    expect(toolStarter).toContain("export const exampleTool = tool(");
+
+    const pluginIndex = await Bun.file(join(generatedProject, ".opencode", "plugins", "smoke-plugin", "index.ts")).text();
+    expect(pluginIndex).toContain('"example-custom-tool": exampleTool');
   });
 
   test("generated project test and sqlite helper both work", async () => {
@@ -66,6 +104,7 @@ describe("template smoke test", () => {
         OPENCODE_TEMPLATE_PLUGIN_LICENSE: "MIT",
         OPENCODE_TEMPLATE_KEEP_AGENT: "n",
         OPENCODE_TEMPLATE_KEEP_SKILL: "n",
+        OPENCODE_TEMPLATE_KEEP_COMMAND: "n",
         OPENCODE_TEMPLATE_KEEP_TOOL: "n",
         OPENCODE_TEMPLATE_KEEP_STATE: "y",
         OPENCODE_TEMPLATE_KEEP_DATABASE: "y",
@@ -148,6 +187,7 @@ describe("template smoke test", () => {
         OPENCODE_TEMPLATE_PLUGIN_LICENSE: "MIT",
         OPENCODE_TEMPLATE_KEEP_AGENT: "n",
         OPENCODE_TEMPLATE_KEEP_SKILL: "n",
+        OPENCODE_TEMPLATE_KEEP_COMMAND: "n",
         OPENCODE_TEMPLATE_KEEP_TOOL: "y",
         OPENCODE_TEMPLATE_KEEP_STATE: "n",
         OPENCODE_TEMPLATE_KEEP_DATABASE: "n",

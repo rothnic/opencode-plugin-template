@@ -6,7 +6,7 @@
 
 - A publishable OpenCode plugin package with `index.ts` at the repository root.
 - A local-plugin folder at `.opencode/plugins/{{PLUGIN_NAME}}/` for easy testing inside OpenCode projects.
-- Optional starter directories for custom agents, skills, and tools.
+- Optional starter directories for custom agents, commands, skills, and tools.
 - A single Bun smoke test so you can confirm the plugin loads before expanding the project.
 - Optional `config/`, `state/`, and Bun-native `database/` helpers you can keep or delete during setup.
 
@@ -23,8 +23,11 @@
 │   │       ├── config/      # optional helper
 │   │       ├── state/       # optional helper
 │   │       └── database/    # optional helper (bun:sqlite)
-│   ├── agent/               # optional template
-│   ├── skill/               # optional template
+│   ├── agents/              # optional bundled agent starter
+│   ├── commands/            # optional bundled command starter
+│   ├── skills/
+│   │   └── template/
+│   │       └── SKILL.md     # optional bundled skill starter
 │   └── tools/               # optional template
 ├── tests/
 │   └── plugin.test.ts
@@ -44,6 +47,15 @@ ln -s /path/to/{{PLUGIN_NAME}}/.opencode/plugins/{{PLUGIN_NAME}} \
 
 OpenCode will automatically load the plugin from the consumer project's `.opencode/plugins/` directory.
 
+If you also want the bundled agents, commands, or skills available in that consumer project, symlink those directories too:
+
+```bash
+mkdir -p /path/to/consumer/.opencode
+ln -s /path/to/{{PLUGIN_NAME}}/.opencode/agents /path/to/consumer/.opencode/agents
+ln -s /path/to/{{PLUGIN_NAME}}/.opencode/commands /path/to/consumer/.opencode/commands
+ln -s /path/to/{{PLUGIN_NAME}}/.opencode/skills /path/to/consumer/.opencode/skills
+```
+
 ## Publish to npm
 
 Because the package entry point is `index.ts`, you can also publish this repository and load it from `opencode.json`:
@@ -62,6 +74,7 @@ Because the package entry point is `index.ts`, you can also publish this reposit
 4. Use `client.app.log()` through the provided `Logger` helper instead of `console.log`.
 5. Extend the `Logger` if you later need extra log destinations rather than adding direct `console` calls in hooks or tools.
 6. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.
+7. Rename the bundled agent, command, and skill starters early so their names match your actual workflow.
 
 ## Logging guardrails
 
@@ -70,3 +83,14 @@ The generated project includes a logging policy that matches the OpenCode plugin
 - `.opencode/plugins/{{PLUGIN_NAME}}/utils/index.ts` contains the Logger you are expected to use,
 - `lefthook` warns in `pre-commit` when direct `console.*` usage is detected in plugin code,
 - `lefthook` blocks in `pre-push` until those calls are removed.
+
+## Bundled OpenCode components
+
+The generated project includes starter examples for the documented OpenCode discovery paths:
+
+- `.opencode/agents/*.md`
+- `.opencode/commands/*.md`
+- `.opencode/skills/<name>/SKILL.md`
+- `AGENTS.md`
+
+These are loaded automatically when you work inside the generated repository, so you can pair plugin code with opinionated agents, commands, skills, and instructions from the same project.

@@ -1,31 +1,20 @@
-export interface ExampleToolInput {
-  query: string;
-}
+import { tool } from "@opencode-ai/plugin";
 
-export interface ExampleToolResult {
-  result: string;
-}
-
-export async function exampleCustomTool(input: ExampleToolInput): Promise<ExampleToolResult> {
-  return {
-    result: `Processed: ${input.query}`,
-  };
-}
-
-export const customTools = {
-  exampleCustomTool: {
-    name: "example_custom_tool",
-    description: "Example custom tool template",
-    inputSchema: {
-      type: "object",
-      properties: {
-        query: {
-          type: "string",
-          description: "The query to process",
-        },
-      },
-      required: ["query"],
-    },
-    handler: exampleCustomTool,
+// Register this from `.opencode/plugins/{{PLUGIN_NAME}}/index.ts` by returning:
+//
+// tool: {
+//   "example-custom-tool": exampleTool,
+// }
+//
+// OpenCode will then expose it alongside the built-in tools.
+export const exampleTool = tool({
+  description: "Example custom tool template",
+  args: {
+    query: tool.schema.string(),
   },
-};
+  async execute(args) {
+    return {
+      result: `Processed: ${args.query}`,
+    };
+  },
+});

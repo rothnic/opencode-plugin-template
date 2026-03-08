@@ -15,9 +15,20 @@ The generated project may include:
 - `config/` for loading plugin-specific settings from `opencode.json`
 - `state/` for saving plugin data under `.opencode/state/` or `~/.config/opencode/state/`
 - `database/` for local Bun SQLite storage under `.opencode/state/` or `~/.config/opencode/state/`
-- `.opencode/agent/`, `.opencode/skill/`, and `.opencode/tools/` starter templates
+- `.opencode/agents/`, `.opencode/commands/`, `.opencode/skills/`, and `.opencode/tools/` starter templates
 
 If you do not need a helper, delete it early instead of carrying unused abstractions.
+
+## Bundled OpenCode assets
+
+The generated project can ship opinionated OpenCode components alongside the plugin code itself:
+
+- agents from `.opencode/agents/*.md`
+- commands from `.opencode/commands/*.md`
+- skills from `.opencode/skills/<name>/SKILL.md`
+- project instructions from `AGENTS.md`
+
+That lets you keep plugin behavior and companion OpenCode workflows in one repository instead of maintaining a second config tree by hand.
 
 ## Logging
 

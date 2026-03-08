@@ -159,12 +159,17 @@ async function main() {
     const keepAgent = (
       nonInteractive
         ? process.env.OPENCODE_TEMPLATE_KEEP_AGENT || "y"
-        : ask("Keep agent template (.opencode/agent/)? [Y/n]: ", "y")
+        : ask("Keep agent template (.opencode/agents/)? [Y/n]: ", "y")
     ).toLowerCase();
     const keepSkill = (
       nonInteractive
         ? process.env.OPENCODE_TEMPLATE_KEEP_SKILL || "y"
-        : ask("Keep skill template (.opencode/skill/)? [Y/n]: ", "y")
+        : ask("Keep skill template (.opencode/skills/)? [Y/n]: ", "y")
+    ).toLowerCase();
+    const keepCommand = (
+      nonInteractive
+        ? process.env.OPENCODE_TEMPLATE_KEEP_COMMAND || "y"
+        : ask("Keep command template (.opencode/commands/)? [Y/n]: ", "y")
     ).toLowerCase();
     const keepTool = (
       nonInteractive
@@ -182,8 +187,9 @@ async function main() {
         : ask("Keep optional Bun SQLite helper? [Y/n]: ", "y")
     ).toLowerCase();
 
-    if (!keepAgent.startsWith("y")) await rm(joinPath(cwd, ".opencode", "agent"), { recursive: true, force: true });
-    if (!keepSkill.startsWith("y")) await rm(joinPath(cwd, ".opencode", "skill"), { recursive: true, force: true });
+    if (!keepAgent.startsWith("y")) await rm(joinPath(cwd, ".opencode", "agents"), { recursive: true, force: true });
+    if (!keepSkill.startsWith("y")) await rm(joinPath(cwd, ".opencode", "skills"), { recursive: true, force: true });
+    if (!keepCommand.startsWith("y")) await rm(joinPath(cwd, ".opencode", "commands"), { recursive: true, force: true });
     if (!keepTool.startsWith("y")) await rm(joinPath(cwd, ".opencode", "tools"), { recursive: true, force: true });
     if (!keepState.startsWith("y")) {
       await rm(joinPath(cwd, ".opencode", "plugins", pluginName, "config"), { recursive: true, force: true });

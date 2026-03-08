@@ -8,8 +8,9 @@ The generated template intentionally wires only a few documented hooks. Add more
 
 Delete these early if you do not need them:
 
-- `.opencode/agent/`
-- `.opencode/skill/`
+- `.opencode/agents/`
+- `.opencode/commands/`
+- `.opencode/skills/`
 - `.opencode/tools/`
 - `.opencode/plugins/<plugin-name>/config/`
 - `.opencode/plugins/<plugin-name>/state/`
