@@ -1,22 +1,7 @@
 import { mkdir, rm } from "node:fs/promises";
+import { dirname, getHomeDirectory, joinPath } from "../utils/path-utils";
 
 export type StateLevel = "project" | "global";
-
-function joinPath(...parts: string[]) {
-  return parts
-    .filter(Boolean)
-    .join("/")
-    .replace(/\/{2,}/g, "/");
-}
-
-function dirname(pathname: string) {
-  const index = pathname.lastIndexOf("/");
-  return index > 0 ? pathname.slice(0, index) : ".";
-}
-
-function getHomeDirectory() {
-  return Bun.env.HOME || Bun.env.USERPROFILE || "";
-}
 
 /**
  * Stores plugin state outside the plugin code directory so it can be removed

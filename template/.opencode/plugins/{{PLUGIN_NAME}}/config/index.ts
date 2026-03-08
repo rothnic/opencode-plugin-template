@@ -1,3 +1,5 @@
+import { getHomeDirectory, joinPath } from "../utils/path-utils";
+
 export interface PluginConfig {
   enabled?: boolean;
   logLevel?: "debug" | "info" | "warn" | "error";
@@ -9,17 +11,6 @@ export interface ConfigLoadResult<T> {
   config: T;
   source: ConfigSource;
   path?: string;
-}
-
-function joinPath(...parts: string[]) {
-  return parts
-    .filter(Boolean)
-    .join("/")
-    .replace(/\/{2,}/g, "/");
-}
-
-function getHomeDirectory() {
-  return Bun.env.HOME || Bun.env.USERPROFILE || "";
 }
 
 async function readJson(filePath: string): Promise<Record<string, unknown> | null> {

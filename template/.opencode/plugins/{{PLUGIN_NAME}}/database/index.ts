@@ -1,23 +1,8 @@
 import { mkdir } from "node:fs/promises";
 import { Database } from "bun:sqlite";
+import { dirname, getHomeDirectory, joinPath } from "../utils/path-utils";
 
 export type DatabaseLevel = "project" | "global";
-
-function joinPath(...parts: string[]) {
-  return parts
-    .filter(Boolean)
-    .join("/")
-    .replace(/\/{2,}/g, "/");
-}
-
-function dirname(pathname: string) {
-  const index = pathname.lastIndexOf("/");
-  return index > 0 ? pathname.slice(0, index) : ".";
-}
-
-function getHomeDirectory() {
-  return Bun.env.HOME || Bun.env.USERPROFILE || "";
-}
 
 export interface PluginDatabaseOptions {
   directory?: string;
@@ -110,6 +95,9 @@ export class PluginDatabase<T = unknown> {
   }
 
   close() {
+    // Passing `false` keeps close() forgiving for template code. Use `true`
+    // instead when you want shutdown to fail loudly if there are still pending
+    // statements or the connection state is unexpected.
     this.db.close(false);
   }
 }

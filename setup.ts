@@ -18,7 +18,7 @@ function joinPath(...parts: string[]) {
 }
 
 function basename(pathname: string) {
-  return pathname.split("/").filter(Boolean).at(-1) ?? pathname;
+  return pathname.split(/[/\\]+/).filter(Boolean).at(-1) ?? pathname;
 }
 
 function writeLine(message = "", color = colors.reset) {
@@ -152,6 +152,7 @@ async function main() {
       if (code !== "ENOENT") {
         throw error;
       }
+      writeLine("  ! Plugin directory placeholder not found; continuing without rename", colors.yellow);
     }
 
     writeLine("\nOptional components:", colors.yellow);
