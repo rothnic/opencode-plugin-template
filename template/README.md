@@ -8,7 +8,7 @@
 - A local-plugin folder at `.opencode/plugins/{{PLUGIN_NAME}}/` for easy testing inside OpenCode projects.
 - Optional starter directories for custom agents, skills, and tools.
 - A single Bun smoke test so you can confirm the plugin loads before expanding the project.
-- Optional `config/` and `state/` helpers you can keep or delete during setup.
+- Optional `config/`, `state/`, and Bun-native `database/` helpers you can keep or delete during setup.
 
 ## Repository structure
 
@@ -21,7 +21,8 @@
 │   │       ├── hooks/
 │   │       ├── utils/
 │   │       ├── config/      # optional helper
-│   │       └── state/       # optional helper
+│   │       ├── state/       # optional helper
+│   │       └── database/    # optional helper (bun:sqlite)
 │   ├── agent/               # optional template
 │   ├── skill/               # optional template
 │   └── tools/               # optional template
@@ -59,3 +60,4 @@ Because the package entry point is `index.ts`, you can also publish this reposit
 2. Remove any optional directories you do not need.
 3. Run `bun test` after each meaningful change.
 4. Use `client.app.log()` through the provided `Logger` helper instead of `console.log`.
+5. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.

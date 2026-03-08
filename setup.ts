@@ -1,10 +1,6 @@
 #!/usr/bin/env bun
 
-import * as fs from "fs/promises";
-import { existsSync } from "fs";
-import * as path from "path";
-import { createInterface } from "node:readline/promises";
-import { stdin as input, stdout as output } from "node:process";
+import { mkdir, readdir, rename, rm } from "node:fs/promises";
 
 const colors = {
   reset: "\x1b[0m",
@@ -14,28 +10,44 @@ const colors = {
   red: "\x1b[31m",
 };
 
+function joinPath(...parts: string[]) {
+  return parts
+    .filter(Boolean)
+    .join("/")
+    .replace(/\/{2,}/g, "/");
+}
+
+function basename(pathname: string) {
+  return pathname.split("/").filter(Boolean).at(-1) ?? pathname;
+}
+
 function writeLine(message = "", color = colors.reset) {
-  output.write(`${color}${message}${colors.reset}\n`);
+  process.stdout.write(`${color}${message}${colors.reset}\n`);
+}
+
+function ask(question: string, fallback: string) {
+  const answer = prompt(`${colors.cyan}${question}${colors.reset}`) ?? "";
+  return answer.trim() || fallback;
 }
 
 async function copyDirectory(src: string, dest: string) {
-  await fs.mkdir(dest, { recursive: true });
-  const entries = await fs.readdir(src, { withFileTypes: true });
+  await mkdir(dest, { recursive: true });
+  const entries = await readdir(src, { withFileTypes: true });
 
   for (const entry of entries) {
-    const srcPath = path.join(src, entry.name);
-    const destPath = path.join(dest, entry.name);
+    const srcPath = joinPath(src, entry.name);
+    const destPath = joinPath(dest, entry.name);
 
     if (entry.isDirectory()) {
       await copyDirectory(srcPath, destPath);
     } else {
-      await fs.copyFile(srcPath, destPath);
+      await Bun.write(destPath, Bun.file(srcPath));
     }
   }
 }
 
 async function replaceInFile(filePath: string, replacements: Record<string, string>) {
-  const content = await fs.readFile(filePath, "utf-8");
+  const content = await Bun.file(filePath).text();
   let updated = content;
 
   for (const [key, value] of Object.entries(replacements)) {
@@ -43,15 +55,15 @@ async function replaceInFile(filePath: string, replacements: Record<string, stri
   }
 
   if (updated !== content) {
-    await fs.writeFile(filePath, updated);
+    await Bun.write(filePath, updated);
   }
 }
 
 async function replaceInDirectory(dir: string, replacements: Record<string, string>) {
-  const entries = await fs.readdir(dir, { withFileTypes: true });
+  const entries = await readdir(dir, { withFileTypes: true });
 
   for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
+    const fullPath = joinPath(dir, entry.name);
     if (entry.isDirectory()) {
       await replaceInDirectory(fullPath, replacements);
       continue;
@@ -63,53 +75,45 @@ async function replaceInDirectory(dir: string, replacements: Record<string, stri
   }
 }
 
-function withDefault(answer: string, fallback: string) {
-  return answer.trim() || fallback;
-}
-
 async function main() {
   writeLine("\n" + "=".repeat(60));
   writeLine("  OpenCode Plugin Template Setup", colors.cyan);
   writeLine("=".repeat(60) + "\n");
 
   const cwd = process.cwd();
-  const templateDir = path.join(cwd, "template");
-  const dirName = path.basename(cwd);
+  const templateDir = joinPath(cwd, "template");
+  const dirName = basename(cwd);
   const inferredPluginName = dirName.startsWith("opencode-plugin-")
     ? dirName.slice("opencode-plugin-".length)
     : dirName;
 
   const nonInteractive = process.env.OPENCODE_TEMPLATE_NONINTERACTIVE === "1";
-  const rl = nonInteractive ? null : createInterface({ input, output });
 
   try {
     const pluginName = nonInteractive
       ? process.env.OPENCODE_TEMPLATE_PLUGIN_NAME || inferredPluginName
-      : withDefault(await rl!.question(`${colors.cyan}Plugin package name (${inferredPluginName}): ${colors.reset}`), inferredPluginName);
+      : ask(`Plugin package name (${inferredPluginName}): `, inferredPluginName);
     const pluginDescription = nonInteractive
       ? process.env.OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION || `OpenCode plugin: ${pluginName}`
-      : withDefault(
-          await rl!.question(`${colors.cyan}Plugin description (OpenCode plugin: ${pluginName}): ${colors.reset}`),
-          `OpenCode plugin: ${pluginName}`,
-        );
+      : ask(`Plugin description (OpenCode plugin: ${pluginName}): `, `OpenCode plugin: ${pluginName}`);
     const pluginAuthor = nonInteractive
       ? process.env.OPENCODE_TEMPLATE_PLUGIN_AUTHOR || ""
-      : withDefault(await rl!.question(`${colors.cyan}Author (): ${colors.reset}`), "");
+      : ask("Author (): ", "");
     const pluginLicense = nonInteractive
       ? process.env.OPENCODE_TEMPLATE_PLUGIN_LICENSE || "MIT"
-      : withDefault(await rl!.question(`${colors.cyan}License (MIT): ${colors.reset}`), "MIT");
+      : ask("License (MIT): ", "MIT");
 
     writeLine("\nCleaning template-repo files...", colors.cyan);
     for (const repoOnlyPath of ["README.md", "AGENTS.md", "docs", "tests", ".ls-lint.yml", "lefthook.yml", ".github"]) {
-      await fs.rm(path.join(cwd, repoOnlyPath), { recursive: true, force: true });
+      await rm(joinPath(cwd, repoOnlyPath), { recursive: true, force: true });
     }
 
     writeLine("\nCopying template files...", colors.cyan);
-    const entries = await fs.readdir(templateDir, { withFileTypes: true });
+    const entries = await readdir(templateDir, { withFileTypes: true });
 
     for (const entry of entries) {
-      const src = path.join(templateDir, entry.name);
-      const dest = path.join(cwd, entry.name);
+      const src = joinPath(templateDir, entry.name);
+      const dest = joinPath(cwd, entry.name);
 
       if (entry.isDirectory()) {
         await copyDirectory(src, dest);
@@ -118,12 +122,12 @@ async function main() {
       }
 
       if (entry.name === "package.json.template") {
-        await fs.copyFile(src, path.join(cwd, "package.json"));
+        await Bun.write(joinPath(cwd, "package.json"), Bun.file(src));
         writeLine("  ✓ Copied package.json", colors.green);
         continue;
       }
 
-      await fs.copyFile(src, dest);
+      await Bun.write(dest, Bun.file(src));
       writeLine(`  ✓ Copied ${entry.name}`, colors.green);
     }
 
@@ -138,57 +142,70 @@ async function main() {
     await replaceInDirectory(cwd, replacements);
     writeLine("  ✓ Replaced template variables", colors.green);
 
-    const pluginTemplateDir = path.join(cwd, ".opencode", "plugins", "{{PLUGIN_NAME}}");
-    const pluginActualDir = path.join(cwd, ".opencode", "plugins", pluginName);
-    if (existsSync(pluginTemplateDir)) {
-      await fs.rename(pluginTemplateDir, pluginActualDir);
+    const pluginTemplateDir = joinPath(cwd, ".opencode", "plugins", "{{PLUGIN_NAME}}");
+    const pluginActualDir = joinPath(cwd, ".opencode", "plugins", pluginName);
+    try {
+      await rename(pluginTemplateDir, pluginActualDir);
       writeLine(`  ✓ Created .opencode/plugins/${pluginName}/`, colors.green);
+    } catch (error) {
+      const code = typeof error === "object" && error && "code" in error ? String(error.code) : "";
+      if (code !== "ENOENT") {
+        throw error;
+      }
     }
 
     writeLine("\nOptional components:", colors.yellow);
     const keepAgent = (
       nonInteractive
         ? process.env.OPENCODE_TEMPLATE_KEEP_AGENT || "y"
-        : withDefault(await rl!.question(`${colors.cyan}Keep agent template (.opencode/agent/)? [Y/n]: ${colors.reset}`), "y")
+        : ask("Keep agent template (.opencode/agent/)? [Y/n]: ", "y")
     ).toLowerCase();
     const keepSkill = (
       nonInteractive
         ? process.env.OPENCODE_TEMPLATE_KEEP_SKILL || "y"
-        : withDefault(await rl!.question(`${colors.cyan}Keep skill template (.opencode/skill/)? [Y/n]: ${colors.reset}`), "y")
+        : ask("Keep skill template (.opencode/skill/)? [Y/n]: ", "y")
     ).toLowerCase();
     const keepTool = (
       nonInteractive
         ? process.env.OPENCODE_TEMPLATE_KEEP_TOOL || "y"
-        : withDefault(await rl!.question(`${colors.cyan}Keep tool example (.opencode/tools/)? [Y/n]: ${colors.reset}`), "y")
+        : ask("Keep tool example (.opencode/tools/)? [Y/n]: ", "y")
     ).toLowerCase();
     const keepState = (
       nonInteractive
         ? process.env.OPENCODE_TEMPLATE_KEEP_STATE || "y"
-        : withDefault(await rl!.question(`${colors.cyan}Keep optional config/state helpers? [Y/n]: ${colors.reset}`), "y")
+        : ask("Keep optional config/state helpers? [Y/n]: ", "y")
+    ).toLowerCase();
+    const keepDatabase = (
+      nonInteractive
+        ? process.env.OPENCODE_TEMPLATE_KEEP_DATABASE || "y"
+        : ask("Keep optional Bun SQLite helper? [Y/n]: ", "y")
     ).toLowerCase();
 
-    if (!keepAgent.startsWith("y")) await fs.rm(path.join(cwd, ".opencode", "agent"), { recursive: true, force: true });
-    if (!keepSkill.startsWith("y")) await fs.rm(path.join(cwd, ".opencode", "skill"), { recursive: true, force: true });
-    if (!keepTool.startsWith("y")) await fs.rm(path.join(cwd, ".opencode", "tools"), { recursive: true, force: true });
+    if (!keepAgent.startsWith("y")) await rm(joinPath(cwd, ".opencode", "agent"), { recursive: true, force: true });
+    if (!keepSkill.startsWith("y")) await rm(joinPath(cwd, ".opencode", "skill"), { recursive: true, force: true });
+    if (!keepTool.startsWith("y")) await rm(joinPath(cwd, ".opencode", "tools"), { recursive: true, force: true });
     if (!keepState.startsWith("y")) {
-      await fs.rm(path.join(cwd, ".opencode", "plugins", pluginName, "config"), { recursive: true, force: true });
-      await fs.rm(path.join(cwd, ".opencode", "plugins", pluginName, "state"), { recursive: true, force: true });
+      await rm(joinPath(cwd, ".opencode", "plugins", pluginName, "config"), { recursive: true, force: true });
+      await rm(joinPath(cwd, ".opencode", "plugins", pluginName, "state"), { recursive: true, force: true });
+    }
+    if (!keepDatabase.startsWith("y")) {
+      await rm(joinPath(cwd, ".opencode", "plugins", pluginName, "database"), { recursive: true, force: true });
     }
 
-    const pkgPath = path.join(cwd, "package.json");
-    const pkg = JSON.parse(await fs.readFile(pkgPath, "utf-8"));
+    const pkgPath = joinPath(cwd, "package.json");
+    const pkg = (await Bun.file(pkgPath).json()) as Record<string, unknown>;
     delete pkg["bun-create"];
-    await fs.writeFile(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
+    await Bun.write(pkgPath, JSON.stringify(pkg, null, 2) + "\n");
 
-    await fs.rm(templateDir, { recursive: true, force: true });
-    await fs.unlink(path.join(cwd, "setup.ts"));
+    await rm(templateDir, { recursive: true, force: true });
+    await Bun.file(joinPath(cwd, "setup.ts")).delete();
 
     writeLine("\n" + "=".repeat(60));
     writeLine("  ✓ Setup Complete", colors.green);
     writeLine("=".repeat(60));
     writeLine(`\nNext steps:\n  1. bun install\n  2. bun test\n  3. Review README.md for local and npm install instructions\n`, colors.cyan);
   } finally {
-    rl?.close();
+    // No interactive resources to close when using Bun's built-in prompt().
   }
 }
 

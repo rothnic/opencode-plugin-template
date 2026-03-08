@@ -8,7 +8,7 @@ export class Logger {
 
   private async write(level: "debug" | "info" | "warn" | "error", message: string, metadata?: Record<string, unknown>) {
     if (!this.context.client.app?.log) {
-      process.stderr.write(`[${this.service}] ${level}: ${message}\n`);
+      await Bun.write(Bun.stderr, `[${this.service}] ${level}: ${message}\n`);
       return;
     }
 

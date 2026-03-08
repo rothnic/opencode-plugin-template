@@ -1,8 +1,22 @@
-import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "fs";
-import { homedir } from "os";
-import { dirname, join } from "path";
+import { mkdir, rm } from "node:fs/promises";
 
 export type StateLevel = "project" | "global";
+
+function joinPath(...parts: string[]) {
+  return parts
+    .filter(Boolean)
+    .join("/")
+    .replace(/\/{2,}/g, "/");
+}
+
+function dirname(pathname: string) {
+  const index = pathname.lastIndexOf("/");
+  return index > 0 ? pathname.slice(0, index) : ".";
+}
+
+function getHomeDirectory() {
+  return Bun.env.HOME || Bun.env.USERPROFILE || "";
+}
 
 /**
  * Stores plugin state outside the plugin code directory so it can be removed
@@ -13,37 +27,38 @@ export type StateLevel = "project" | "global";
 export class StateManager<T extends Record<string, unknown>> {
   constructor(private readonly pluginName: string, private readonly directory: string) {}
 
-  load(level: StateLevel, defaults: T): T {
+  async load(level: StateLevel, defaults: T): Promise<T> {
     const filePath = this.getPath(level);
-    if (!existsSync(filePath)) return defaults;
+    const file = Bun.file(filePath);
+    if (!(await file.exists())) return defaults;
 
     try {
       return {
         ...defaults,
-        ...JSON.parse(readFileSync(filePath, "utf-8")),
+        ...((await file.json()) as Record<string, unknown>),
       } as T;
     } catch {
       return defaults;
     }
   }
 
-  save(level: StateLevel, value: T) {
+  async save(level: StateLevel, value: T) {
     const filePath = this.getPath(level);
-    mkdirSync(dirname(filePath), { recursive: true });
-    writeFileSync(filePath, JSON.stringify(value, null, 2) + "\n");
+    await mkdir(dirname(filePath), { recursive: true });
+    await Bun.write(filePath, JSON.stringify(value, null, 2) + "\n");
   }
 
-  clear(level: StateLevel) {
+  async clear(level: StateLevel) {
     const filePath = this.getPath(level);
-    if (existsSync(filePath)) rmSync(filePath);
+    await rm(filePath, { force: true });
   }
 
   getPath(level: StateLevel) {
     if (level === "global") {
-      return join(homedir(), ".config", "opencode", "state", `${this.pluginName}.json`);
+      return joinPath(getHomeDirectory(), ".config", "opencode", "state", `${this.pluginName}.json`);
     }
 
-    return join(this.directory, ".opencode", "state", `${this.pluginName}.json`);
+    return joinPath(this.directory, ".opencode", "state", `${this.pluginName}.json`);
   }
 }
 

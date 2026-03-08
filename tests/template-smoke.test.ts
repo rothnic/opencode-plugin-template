@@ -1,8 +1,7 @@
 import { describe, expect, test } from "bun:test";
-import { cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, symlinkSync } from "fs";
+import { cpSync, existsSync, mkdirSync, mkdtempSync, symlinkSync } from "fs";
 import { tmpdir } from "os";
 import { join, resolve } from "path";
-import { spawnSync } from "child_process";
 
 const repoRoot = resolve(import.meta.dir, "..");
 
@@ -14,14 +13,13 @@ function copyTemplateRepo(destination: string) {
 }
 
 describe("template smoke test", () => {
-  test("scaffolds a usable plugin project and supports local plugin linking", () => {
+  test("scaffolds a usable plugin project and supports local plugin linking", async () => {
     const workspace = mkdtempSync(join(tmpdir(), "opencode-plugin-template-"));
     const generatedProject = join(workspace, "smoke-plugin");
     copyTemplateRepo(generatedProject);
 
-    const setup = spawnSync("node", ["--experimental-strip-types", "setup.ts"], {
+    const setup = Bun.spawnSync([process.execPath, "setup.ts"], {
       cwd: generatedProject,
-      encoding: "utf-8",
       env: {
         ...process.env,
         OPENCODE_TEMPLATE_NONINTERACTIVE: "1",
@@ -33,48 +31,104 @@ describe("template smoke test", () => {
         OPENCODE_TEMPLATE_KEEP_SKILL: "y",
         OPENCODE_TEMPLATE_KEEP_TOOL: "y",
         OPENCODE_TEMPLATE_KEEP_STATE: "y",
+        OPENCODE_TEMPLATE_KEEP_DATABASE: "y",
       },
+      stdout: "pipe",
+      stderr: "pipe",
     });
 
-    expect(setup.status).toBe(0);
+    expect(setup.exitCode).toBe(0);
     expect(existsSync(join(generatedProject, "template"))).toBe(false);
     expect(existsSync(join(generatedProject, "setup.ts"))).toBe(false);
     expect(existsSync(join(generatedProject, ".github"))).toBe(false);
     expect(existsSync(join(generatedProject, ".opencode", "plugins", "smoke-plugin", "index.ts"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "plugins", "smoke-plugin", "database", "index.ts"))).toBe(true);
     expect(existsSync(join(generatedProject, "tests", "plugin.test.ts"))).toBe(true);
 
-    const pkg = JSON.parse(readFileSync(join(generatedProject, "package.json"), "utf-8"));
-    expect(pkg.name).toBe("smoke-plugin");
-    expect(pkg["bun-create"]).toBeUndefined();
+    const pkg = (await Bun.file(join(generatedProject, "package.json")).json()) as Record<string, unknown>;
+    expect(pkg).toMatchObject({ name: "smoke-plugin" });
+    expect(pkg).not.toHaveProperty("bun-create");
+  });
 
-    const generatedTests = spawnSync("bun", ["test", "tests/plugin.test.ts"], {
+  test("generated project test and sqlite helper both work", async () => {
+    const workspace = mkdtempSync(join(tmpdir(), "opencode-plugin-template-"));
+    const generatedProject = join(workspace, "sqlite-plugin");
+    copyTemplateRepo(generatedProject);
+
+    const setup = Bun.spawnSync([process.execPath, "setup.ts"], {
       cwd: generatedProject,
-      encoding: "utf-8",
+      env: {
+        ...process.env,
+        OPENCODE_TEMPLATE_NONINTERACTIVE: "1",
+        OPENCODE_TEMPLATE_PLUGIN_NAME: "sqlite-plugin",
+        OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION: "SQLite test plugin",
+        OPENCODE_TEMPLATE_PLUGIN_AUTHOR: "Template Test",
+        OPENCODE_TEMPLATE_PLUGIN_LICENSE: "MIT",
+        OPENCODE_TEMPLATE_KEEP_AGENT: "n",
+        OPENCODE_TEMPLATE_KEEP_SKILL: "n",
+        OPENCODE_TEMPLATE_KEEP_TOOL: "n",
+        OPENCODE_TEMPLATE_KEEP_STATE: "y",
+        OPENCODE_TEMPLATE_KEEP_DATABASE: "y",
+      },
+      stdout: "pipe",
+      stderr: "pipe",
     });
 
-    expect(generatedTests.status).toBe(0);
+    expect(setup.exitCode).toBe(0);
+
+    const generatedTests = Bun.spawnSync([process.execPath, "test", "tests/plugin.test.ts"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    expect(generatedTests.exitCode).toBe(0);
+
+    const sqliteCheck = Bun.spawnSync(
+      [
+        process.execPath,
+        "-e",
+        [
+          "import { PluginDatabase } from './.opencode/plugins/sqlite-plugin/database/index.ts';",
+          "const db = await PluginDatabase.open('sqlite-plugin', { directory: process.cwd() });",
+          "db.set('healthcheck', { ok: true });",
+          "const row = db.get('healthcheck');",
+          "db.close();",
+          "process.stdout.write(String(row?.value.ok));",
+        ].join(" "),
+      ],
+      {
+        cwd: generatedProject,
+        stdout: "pipe",
+        stderr: "pipe",
+      },
+    );
+
+    expect(sqliteCheck.exitCode).toBe(0);
+    expect(new TextDecoder().decode(sqliteCheck.stdout).trim()).toBe("true");
 
     const consumerProject = join(workspace, "consumer-project");
     mkdirSync(join(consumerProject, ".opencode", "plugins"), { recursive: true });
     symlinkSync(
-      join(generatedProject, ".opencode", "plugins", "smoke-plugin"),
-      join(consumerProject, ".opencode", "plugins", "smoke-plugin"),
+      join(generatedProject, ".opencode", "plugins", "sqlite-plugin"),
+      join(consumerProject, ".opencode", "plugins", "sqlite-plugin"),
       "dir",
     );
 
-    const localLoad = spawnSync(
-      "bun",
+    const localLoad = Bun.spawnSync(
       [
+        process.execPath,
         "-e",
-        "import('./.opencode/plugins/smoke-plugin/index.ts').then((mod) => process.stdout.write(typeof mod.default))",
+        "import('./.opencode/plugins/sqlite-plugin/index.ts').then((mod) => process.stdout.write(typeof mod.default))",
       ],
       {
         cwd: consumerProject,
-        encoding: "utf-8",
+        stdout: "pipe",
+        stderr: "pipe",
       },
     );
 
-    expect(localLoad.status).toBe(0);
-    expect(localLoad.stdout.trim()).toBe("function");
+    expect(localLoad.exitCode).toBe(0);
+    expect(new TextDecoder().decode(localLoad.stdout).trim()).toBe("function");
   });
 });

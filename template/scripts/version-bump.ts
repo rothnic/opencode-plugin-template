@@ -9,9 +9,6 @@
  * Usage: bun run version:bump [major|minor|patch]
  */
 
-import { readFile, writeFile } from "fs/promises";
-import { join } from "path";
-
 type VersionType = "major" | "minor" | "patch";
 
 interface PackageJson {
@@ -58,10 +55,10 @@ async function updateVersionInFile(
   newVersion: string
 ): Promise<void> {
   try {
-    const content = await readFile(filePath, "utf-8");
+    const content = await Bun.file(filePath).text();
     const json = JSON.parse(content);
     json.version = newVersion;
-    await writeFile(filePath, JSON.stringify(json, null, 2) + "\n");
+    await Bun.write(filePath, JSON.stringify(json, null, 2) + "\n");
     console.log(`✅ Updated ${filePath} to version ${newVersion}`);
   } catch (error) {
     console.error(`❌ Failed to update ${filePath}:`, error);
@@ -93,14 +90,12 @@ async function main() {
   const versionType = versionTypeInput;
 
   const rootDir = process.cwd();
-  const packageJsonPath = join(rootDir, "package.json");
-  const openCodeJsonPath = join(rootDir, "opencode.json");
+  const packageJsonPath = `${rootDir}/package.json`;
+  const openCodeJsonPath = `${rootDir}/opencode.json`;
 
   try {
     // Read current version from package.json
-    const packageJson: PackageJson = JSON.parse(
-      await readFile(packageJsonPath, "utf-8")
-    );
+    const packageJson = (await Bun.file(packageJsonPath).json()) as PackageJson;
     const currentVersion = packageJson.version;
     const newVersion = bumpVersion(currentVersion, versionType);
 

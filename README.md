@@ -30,7 +30,7 @@ During setup, the template will:
 - strip the common `opencode-plugin-` prefix when that prefix is present,
 - ask for description, author, and license,
 - rename `.opencode/plugins/{{PLUGIN_NAME}}/` to the real plugin name,
-- optionally remove the agent, skill, tool, config, or state starter files you do not want.
+- optionally remove the agent, skill, tool, config, state, or SQLite starter files you do not want.
 
 ## What the generated plugin looks like
 
@@ -43,7 +43,8 @@ During setup, the template will:
 │   │       ├── hooks/
 │   │       ├── utils/
 │   │       ├── config/   # optional helper
-│   │       └── state/    # optional helper
+│   │       ├── state/    # optional helper
+│   │       └── database/ # optional helper (bun:sqlite)
 │   ├── agent/            # optional template
 │   ├── skill/            # optional template
 │   └── tools/            # optional template
@@ -63,7 +64,7 @@ The generated project intentionally starts small:
 - one agent template,
 - one skill template,
 - one custom tool template,
-- optional config and state helpers.
+- optional config, state, and local SQLite helpers.
 
 It does **not** assume every plugin needs persistent state, custom tools, or multiple agents on day one.
 

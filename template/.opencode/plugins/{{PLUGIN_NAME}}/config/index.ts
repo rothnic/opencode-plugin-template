@@ -1,7 +1,3 @@
-import { existsSync, readFileSync } from "fs";
-import { homedir } from "os";
-import { join } from "path";
-
 export interface PluginConfig {
   enabled?: boolean;
   logLevel?: "debug" | "info" | "warn" | "error";
@@ -15,11 +11,23 @@ export interface ConfigLoadResult<T> {
   path?: string;
 }
 
-function readJson(filePath: string): Record<string, unknown> | null {
-  if (!existsSync(filePath)) return null;
+function joinPath(...parts: string[]) {
+  return parts
+    .filter(Boolean)
+    .join("/")
+    .replace(/\/{2,}/g, "/");
+}
+
+function getHomeDirectory() {
+  return Bun.env.HOME || Bun.env.USERPROFILE || "";
+}
+
+async function readJson(filePath: string): Promise<Record<string, unknown> | null> {
+  const file = Bun.file(filePath);
+  if (!(await file.exists())) return null;
 
   try {
-    return JSON.parse(readFileSync(filePath, "utf-8"));
+    return (await file.json()) as Record<string, unknown>;
   } catch {
     return null;
   }
@@ -32,11 +40,11 @@ export class ConfigManager<T extends PluginConfig = PluginConfig> {
   ) {}
 
   async load(defaults: Partial<T> = {}, runtime: Partial<T> = {}): Promise<ConfigLoadResult<T>> {
-    const globalPath = join(homedir(), ".config", "opencode", "opencode.json");
-    const projectPath = join(this.directory, "opencode.json");
+    const globalPath = joinPath(getHomeDirectory(), ".config", "opencode", "opencode.json");
+    const projectPath = joinPath(this.directory, "opencode.json");
 
-    const globalConfig = this.pickPluginConfig(readJson(globalPath));
-    const projectConfig = this.pickPluginConfig(readJson(projectPath));
+    const globalConfig = this.pickPluginConfig(await readJson(globalPath));
+    const projectConfig = this.pickPluginConfig(await readJson(projectPath));
 
     const merged = {
       ...defaults,

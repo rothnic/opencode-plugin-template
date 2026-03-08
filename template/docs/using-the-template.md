@@ -14,6 +14,7 @@ The generated project may include:
 
 - `config/` for loading plugin-specific settings from `opencode.json`
 - `state/` for saving plugin data under `.opencode/state/` or `~/.config/opencode/state/`
+- `database/` for local Bun SQLite storage under `.opencode/state/` or `~/.config/opencode/state/`
 - `.opencode/agent/`, `.opencode/skill/`, and `.opencode/tools/` starter templates
 
 If you do not need a helper, delete it early instead of carrying unused abstractions.
