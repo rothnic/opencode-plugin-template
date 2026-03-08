@@ -131,4 +131,51 @@ describe("template smoke test", () => {
     expect(localLoad.exitCode).toBe(0);
     expect(new TextDecoder().decode(localLoad.stdout).trim()).toBe("function");
   });
+
+  test("generated logging guardrails warn on commit and block on push", async () => {
+    const workspace = mkdtempSync(join(tmpdir(), "opencode-plugin-template-"));
+    const generatedProject = join(workspace, "logging-plugin");
+    copyTemplateRepo(generatedProject);
+
+    const setup = Bun.spawnSync([process.execPath, "setup.ts"], {
+      cwd: generatedProject,
+      env: {
+        ...process.env,
+        OPENCODE_TEMPLATE_NONINTERACTIVE: "1",
+        OPENCODE_TEMPLATE_PLUGIN_NAME: "logging-plugin",
+        OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION: "Logging test plugin",
+        OPENCODE_TEMPLATE_PLUGIN_AUTHOR: "Template Test",
+        OPENCODE_TEMPLATE_PLUGIN_LICENSE: "MIT",
+        OPENCODE_TEMPLATE_KEEP_AGENT: "n",
+        OPENCODE_TEMPLATE_KEEP_SKILL: "n",
+        OPENCODE_TEMPLATE_KEEP_TOOL: "y",
+        OPENCODE_TEMPLATE_KEEP_STATE: "n",
+        OPENCODE_TEMPLATE_KEEP_DATABASE: "n",
+      },
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+
+    expect(setup.exitCode).toBe(0);
+
+    const pluginFile = join(generatedProject, ".opencode", "plugins", "logging-plugin", "index.ts");
+    const original = await Bun.file(pluginFile).text();
+    await Bun.write(pluginFile, `${original}\nconsole.log("should be blocked");\n`);
+
+    const warnCheck = Bun.spawnSync([process.execPath, "run", "scripts/check-plugin-logging.ts", "warn"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(warnCheck.exitCode).toBe(0);
+    expect(new TextDecoder().decode(warnCheck.stderr)).toContain("Warning: direct console logging found");
+
+    const blockCheck = Bun.spawnSync([process.execPath, "run", "scripts/check-plugin-logging.ts", "block"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(blockCheck.exitCode).toBe(1);
+    expect(new TextDecoder().decode(blockCheck.stderr)).toContain("Direct console logging is blocked");
+  });
 });

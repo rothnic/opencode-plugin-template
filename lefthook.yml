@@ -3,14 +3,12 @@ pre-commit:
   commands:
     lint:
       run: bun run lint
-    template-no-console:
-      run: |
-        if grep -R "console\.log" template/.opencode/plugins template/.opencode/tools 2>/dev/null; then
-          echo "Use client.app.log() or the Logger helper in generated plugin code."
-          exit 1
-        fi
+    template-no-console-warn:
+      run: bun run scripts/check-plugin-logging.ts warn template
 
 pre-push:
   commands:
+    template-no-console-block:
+      run: bun run scripts/check-plugin-logging.ts block template
     test:
       run: bun test

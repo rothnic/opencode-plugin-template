@@ -60,4 +60,13 @@ Because the package entry point is `index.ts`, you can also publish this reposit
 2. Remove any optional directories you do not need.
 3. Run `bun test` after each meaningful change.
 4. Use `client.app.log()` through the provided `Logger` helper instead of `console.log`.
-5. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.
+5. Extend the `Logger` if you later need extra log destinations rather than adding direct `console` calls in hooks or tools.
+6. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.
+
+## Logging guardrails
+
+The generated project includes a logging policy that matches the OpenCode plugin docs:
+
+- `.opencode/plugins/{{PLUGIN_NAME}}/utils/index.ts` contains the Logger you are expected to use,
+- `lefthook` warns in `pre-commit` when direct `console.*` usage is detected in plugin code,
+- `lefthook` blocks in `pre-push` until those calls are removed.

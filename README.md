@@ -65,6 +65,7 @@ The generated project intentionally starts small:
 - one skill template,
 - one custom tool template,
 - optional config, state, and local SQLite helpers.
+- a generated Logger helper that wraps `client.app.log()` and acts as the single extension point for future log destinations.
 
 It does **not** assume every plugin needs persistent state, custom tools, or multiple agents on day one.
 
@@ -76,5 +77,18 @@ Before shipping changes to this template, the template repo validates that it ca
 2. replace template variables correctly,
 3. expose a plugin from the generated `index.ts`, and
 4. be linked into a consumer project's `.opencode/plugins/` directory.
+
+## Logging policy in the generated plugin
+
+The generated plugin is set up to follow the OpenCode logging guidance:
+
+- plugin code should log through the generated `Logger`,
+- the `Logger` writes to `client.app.log()` using the documented structured payload,
+- if you need extra destinations later, add them in the `Logger` configuration instead of introducing direct `console` logging.
+
+Generated `lefthook.yml` enforces this in two stages:
+
+- `pre-commit`: warns when direct `console.*` logging appears in plugin code,
+- `pre-push`: blocks the push until those calls are removed.
 
 See [docs/quickstart.md](docs/quickstart.md), [docs/reference.md](docs/reference.md), and [docs/plugin-analysis.md](docs/plugin-analysis.md) for the supporting details.

@@ -8,7 +8,17 @@ import { Logger } from "./utils";
 // import { PluginDatabase } from "./database";
 
 export const MyPlugin: Plugin = async (context: PluginContext): Promise<PluginHooks> => {
-  const logger = new Logger(context);
+  const logger = new Logger(context, {
+    // Add extra destinations here if you need to fan logs out to another sink.
+    // destinations: [
+    //   async (entry) => {
+    //     await fetch("https://example.com/plugin-logs", {
+    //       method: "POST",
+    //       body: JSON.stringify(entry),
+    //     });
+    //   },
+    // ],
+  });
   await logger.info("Plugin initialized");
 
   // Example Bun-native SQLite starter:

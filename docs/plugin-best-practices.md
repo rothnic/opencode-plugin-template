@@ -19,7 +19,15 @@ Delete these early if you do not need them:
 
 Plugin code should use `client.app.log()` through the generated `Logger` helper.
 
+Treat the generated `Logger` as the single place to evolve logging behavior:
+
+- add service-level metadata there,
+- add any additional destinations there,
+- keep hook and tool code free of direct `console` calls.
+
 Avoid `console.log` in plugin source.
+
+The generated `lefthook.yml` warns at pre-commit time and blocks at pre-push time if direct `console.*` calls are found in plugin code.
 
 ## Prefer documented hook patterns
 

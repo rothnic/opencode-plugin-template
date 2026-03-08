@@ -7,6 +7,8 @@
   "scripts": {
     "test": "bun test tests/template-smoke.test.ts",
     "lint": "bunx @ls-lint/ls-lint -config ./.ls-lint.yml .",
+    "check:logging:warn": "bun run scripts/check-plugin-logging.ts warn template",
+    "check:logging:block": "bun run scripts/check-plugin-logging.ts block template",
     "prepare": "lefthook install",
     "version:bump": "bun run scripts/version-bump.ts"
   },
