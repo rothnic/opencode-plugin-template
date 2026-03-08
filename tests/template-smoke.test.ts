@@ -4,6 +4,7 @@ import { tmpdir } from "os";
 import { join, resolve } from "path";
 
 const repoRoot = resolve(import.meta.dir, "..");
+const bunExecutable = Bun.which("bun") ?? process.execPath;
 
 function copyTemplateRepo(destination: string) {
   cpSync(repoRoot, destination, {
@@ -35,7 +36,7 @@ describe("template smoke test", () => {
     const generatedProject = join(workspace, "smoke-plugin");
     copyTemplateRepo(generatedProject);
 
-    const setup = Bun.spawnSync([process.execPath, "setup.ts"], {
+    const setup = Bun.spawnSync([bunExecutable, "setup.ts"], {
       cwd: generatedProject,
       env: {
         ...process.env,
@@ -66,6 +67,20 @@ describe("template smoke test", () => {
     expect(existsSync(join(generatedProject, ".opencode", "skills", "template", "SKILL.md"))).toBe(true);
     expect(existsSync(join(generatedProject, "tests", "plugin.test.ts"))).toBe(true);
 
+    const generatedInstall = Bun.spawnSync([bunExecutable, "install"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(generatedInstall.exitCode).toBe(0);
+
+    const generatedBuild = Bun.spawnSync([bunExecutable, "run", "build"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(generatedBuild.exitCode).toBe(0);
+
     const pkg = (await Bun.file(join(generatedProject, "package.json")).json()) as Record<string, unknown>;
     expect(pkg).toMatchObject({ name: "smoke-plugin" });
     expect(pkg).not.toHaveProperty("bun-create");
@@ -93,7 +108,7 @@ describe("template smoke test", () => {
     const generatedProject = join(workspace, "sqlite-plugin");
     copyTemplateRepo(generatedProject);
 
-    const setup = Bun.spawnSync([process.execPath, "setup.ts"], {
+    const setup = Bun.spawnSync([bunExecutable, "setup.ts"], {
       cwd: generatedProject,
       env: {
         ...process.env,
@@ -115,7 +130,21 @@ describe("template smoke test", () => {
 
     expect(setup.exitCode).toBe(0);
 
-    const generatedTests = Bun.spawnSync([process.execPath, "test", "tests/plugin.test.ts"], {
+    const generatedInstall = Bun.spawnSync([bunExecutable, "install"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(generatedInstall.exitCode).toBe(0);
+
+    const generatedBuild = Bun.spawnSync([bunExecutable, "run", "build"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(generatedBuild.exitCode).toBe(0);
+
+    const generatedTests = Bun.spawnSync([bunExecutable, "test", "tests/plugin.test.ts"], {
       cwd: generatedProject,
       stdout: "pipe",
       stderr: "pipe",
@@ -125,7 +154,7 @@ describe("template smoke test", () => {
 
     const sqliteCheck = Bun.spawnSync(
       [
-        process.execPath,
+          bunExecutable,
         "-e",
         [
           "import { PluginDatabase } from './.opencode/plugins/sqlite-plugin/database/index.ts';",
@@ -156,7 +185,7 @@ describe("template smoke test", () => {
 
     const localLoad = Bun.spawnSync(
       [
-        process.execPath,
+         bunExecutable,
         "-e",
         "import('./.opencode/plugins/sqlite-plugin/index.ts').then((mod) => process.stdout.write(typeof mod.default))",
       ],
@@ -176,7 +205,7 @@ describe("template smoke test", () => {
     const generatedProject = join(workspace, "logging-plugin");
     copyTemplateRepo(generatedProject);
 
-    const setup = Bun.spawnSync([process.execPath, "setup.ts"], {
+    const setup = Bun.spawnSync([bunExecutable, "setup.ts"], {
       cwd: generatedProject,
       env: {
         ...process.env,
@@ -202,7 +231,7 @@ describe("template smoke test", () => {
     const original = await Bun.file(pluginFile).text();
     await Bun.write(pluginFile, `${original}\nconsole.log("should be blocked");\n`);
 
-    const warnCheck = Bun.spawnSync([process.execPath, "run", "scripts/check-plugin-logging.ts", "warn"], {
+    const warnCheck = Bun.spawnSync([bunExecutable, "run", "scripts/check-plugin-logging.ts", "warn"], {
       cwd: generatedProject,
       stdout: "pipe",
       stderr: "pipe",
@@ -210,7 +239,7 @@ describe("template smoke test", () => {
     expect(warnCheck.exitCode).toBe(0);
     expect(new TextDecoder().decode(warnCheck.stderr)).toContain("Warning: direct console logging found");
 
-    const blockCheck = Bun.spawnSync([process.execPath, "run", "scripts/check-plugin-logging.ts", "block"], {
+    const blockCheck = Bun.spawnSync([bunExecutable, "run", "scripts/check-plugin-logging.ts", "block"], {
       cwd: generatedProject,
       stdout: "pipe",
       stderr: "pipe",

@@ -163,7 +163,7 @@ bun test --coverage
 1. **Update Documentation**: Ensure README and other docs are updated
 2. **Add Tests**: Include tests for new functionality
 3. **Run Linting**: Ensure `bun run lint` passes
-4. **Check Build**: Ensure `bun run build` succeeds
+4. **Check Build**: Ensure `bun run build` succeeds (type-checks the template repo)
 5. **Update CHANGELOG**: Add entry for your changes
 6. **Describe Changes**: Write a clear PR description
 7. **Link Issues**: Reference related issues

@@ -19,6 +19,15 @@ The generated project may include:
 
 If you do not need a helper, delete it early instead of carrying unused abstractions.
 
+## Validation commands
+
+After scaffolding, use the same Bun-native commands the template CI exercises:
+
+- `bun install`
+- `bun run build`
+- `bun test`
+- `bun run lint`
+
 ## Bundled OpenCode assets
 
 The generated project can ship opinionated OpenCode components alongside the plugin code itself:

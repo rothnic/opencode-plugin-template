@@ -5,15 +5,17 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "build": "bunx tsc --noEmit",
     "test": "bun test tests/template-smoke.test.ts",
     "lint": "bunx @ls-lint/ls-lint -config ./.ls-lint.yml .",
     "check:logging:warn": "bun run scripts/check-plugin-logging.ts warn template",
     "check:logging:block": "bun run scripts/check-plugin-logging.ts block template",
-    "prepare": "lefthook install",
+    "prepare": "bun run scripts/install-hooks.ts",
     "version:bump": "bun run scripts/version-bump.ts"
   },
   "devDependencies": {
     "@types/bun": "latest",
+    "typescript": "^5.9.3",
     "lefthook": "^1.6.0",
     "@ls-lint/ls-lint": "^2.3.1"
   },

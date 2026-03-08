@@ -1,5 +1,7 @@
 #!/usr/bin/env bun
 
+export {};
+
 type Mode = "warn" | "block";
 
 const mode = (process.argv[2] === "block" ? "block" : "warn") satisfies Mode;

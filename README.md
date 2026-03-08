@@ -21,6 +21,7 @@ This repository is the template source, not the generated plugin itself.
 bun create rothnic/opencode-plugin-template my-plugin
 cd my-plugin
 bun install
+bun run build
 bun test
 ```
 
@@ -77,8 +78,13 @@ Before shipping changes to this template, the template repo validates that it ca
 
 1. scaffold a new project,
 2. replace template variables correctly,
-3. expose a plugin from the generated `index.ts`, and
-4. be linked into a consumer project's `.opencode/plugins/` directory.
+3. install generated-project dependencies with Bun,
+4. type-check the template repo and generated project with `bun run build`,
+5. expose a plugin from the generated `index.ts`, and
+6. be linked into a consumer project's `.opencode/plugins/` directory.
+
+The generated project intentionally lets `bun install` succeed before `git init`; the
+`prepare` hook only installs `lefthook` when the project is already inside a Git repo.
 
 ## Logging policy in the generated plugin
 
