@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "bun test tests/template-smoke.test.ts",
-    "lint": "ls-lint",
+    "lint": "bunx @ls-lint/ls-lint -config ./.ls-lint.yml .",
     "prepare": "lefthook install",
     "version:bump": "bun run scripts/version-bump.ts"
   },

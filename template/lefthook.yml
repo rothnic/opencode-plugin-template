@@ -5,7 +5,7 @@ pre-commit:
       run: bun run lint
     no-console:
       run: |
-        if grep -R "console\.log" .opencode/plugins .opencode/tools 2>/dev/null; then
+        if grep -R --exclude-dir=node_modules "console\.log" .opencode/plugins .opencode/tools 2>/dev/null; then
           echo "Use client.app.log() or the Logger helper in plugin code."
           exit 1
         fi

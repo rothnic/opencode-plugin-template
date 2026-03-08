@@ -7,7 +7,10 @@ export class Logger {
   ) {}
 
   private async write(level: "debug" | "info" | "warn" | "error", message: string, metadata?: Record<string, unknown>) {
-    if (!this.context.client.app?.log) return;
+    if (!this.context.client.app?.log) {
+      process.stderr.write(`[${this.service}] ${level}: ${message}\n`);
+      return;
+    }
 
     await this.context.client.app.log({
       body: {

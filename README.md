@@ -27,6 +27,7 @@ bun test
 During setup, the template will:
 
 - infer the plugin package name from the target directory,
+- strip the common `opencode-plugin-` prefix when that prefix is present,
 - ask for description, author, and license,
 - rename `.opencode/plugins/{{PLUGIN_NAME}}/` to the real plugin name,
 - optionally remove the agent, skill, tool, config, or state starter files you do not want.

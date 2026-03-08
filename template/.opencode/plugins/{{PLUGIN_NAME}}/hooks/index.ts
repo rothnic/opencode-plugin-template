@@ -17,7 +17,12 @@ export function registerHooks(logger: Logger): PluginHooks {
       if (input.tool !== "bash") return;
 
       const command = output.args?.command;
-      if (typeof command !== "string") return;
+      if (typeof command !== "string") {
+        await logger.debug("Skipped bash validation because no command string was provided", {
+          tool: input.tool,
+        });
+        return;
+      }
 
       if (isDangerousCommand(command)) {
         await logger.warn("Blocked potentially dangerous bash command", {

@@ -63,6 +63,8 @@ export class ConfigManager<T extends PluginConfig = PluginConfig> {
   private pickPluginConfig(config: Record<string, unknown> | null): Partial<T> | null {
     if (!config) return null;
 
+    // Prefer a dedicated nested "plugins" object first, then fall back to a direct
+    // top-level plugin key so the helper can work with either configuration style.
     const plugins = config.plugins;
     if (plugins && typeof plugins === "object" && !Array.isArray(plugins)) {
       const pluginConfig = (plugins as Record<string, unknown>)[this.pluginName];

@@ -4,6 +4,12 @@ import { dirname, join } from "path";
 
 export type StateLevel = "project" | "global";
 
+/**
+ * Stores plugin state outside the plugin code directory so it can be removed
+ * independently of the plugin implementation:
+ * - project: ./.opencode/state/<plugin-name>.json
+ * - global: ~/.config/opencode/state/<plugin-name>.json
+ */
 export class StateManager<T extends Record<string, unknown>> {
   constructor(private readonly pluginName: string, private readonly directory: string) {}
 

@@ -1,21 +1,15 @@
 ls:
-  ./:
+  .:
     .dir: kebab-case
     .ts: kebab-case
-    .md: kebab-case | SCREAMING_SNAKE_CASE
+    .md: kebab-case
     .json: kebab-case
-    .yml: kebab-case | .ls-lint.yml
-    .yaml: kebab-case
-  docs:
-    .md: kebab-case
-  .opencode:
-    .dir: kebab-case
-    .ts: kebab-case
-    .md: kebab-case
+    .yml: kebab-case
 
 ignore:
   - node_modules
   - dist
   - .git
-  - .opencode/state
-  - "*.log"
+  - README.md
+  - AGENTS.md
+  - .ls-lint.yml
