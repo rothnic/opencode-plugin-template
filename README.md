@@ -80,11 +80,26 @@ Before shipping changes to this template, the template repo validates that it ca
 2. replace template variables correctly,
 3. install generated-project dependencies with Bun,
 4. type-check the template repo and generated project with `bun run build`,
-5. expose a plugin from the generated `index.ts`, and
-6. be linked into a consumer project's `.opencode/plugins/` directory.
+5. lint the template repo and generated project with `bun run lint`,
+6. expose a plugin from the generated `index.ts`, and
+7. be linked into a consumer project's `.opencode/plugins/` directory.
 
 The generated project intentionally lets `bun install` succeed before `git init`; the
 `prepare` hook only installs `lefthook` when the project is already inside a Git repo.
+
+## What is actually tested today
+
+The current smoke coverage is intentionally explicit:
+
+| Scenario | Validated |
+| --- | --- |
+| Template repository | `bun install`, `bun run build`, `bun run lint`, `bun test` |
+| Generated project with bundled starters kept | `bun install`, `bun run build`, `bun run lint`, starter asset shape checks |
+| Generated project with optional SQLite helper | `bun install`, `bun run build`, `bun run lint`, `bun test`, SQLite read/write |
+| Generated project logging guardrails | warning in `warn` mode, blocking in `block` mode |
+| Local plugin consumption | symlinked plugin import from a separate consumer repo |
+
+If you add a new starter capability, extend the smoke test before documenting it as a validated path.
 
 ## Logging policy in the generated plugin
 
@@ -107,6 +122,8 @@ The generated project shows the documented auto-discovery paths for OpenCode com
 - commands live in `.opencode/commands/*.md`,
 - skills live in `.opencode/skills/<name>/SKILL.md`,
 - instructions live in `AGENTS.md` and can be split into additional files through `opencode.json`'s `instructions` field if you add one later.
+
+These bundled assets auto-load when you work inside the generated plugin repository itself. If you want them available from a different consumer repository, you still need to symlink or copy those `.opencode` directories into that consumer project because npm package installation does not inject repo-scoped OpenCode assets automatically.
 
 The smoke test validates the starter agent, command, and skill shapes so invalid examples do not slip into the generated project.
 

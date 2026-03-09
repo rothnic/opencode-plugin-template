@@ -25,8 +25,8 @@ After scaffolding, use the same Bun-native commands the template CI exercises:
 
 - `bun install`
 - `bun run build`
-- `bun test`
 - `bun run lint`
+- `bun test`
 
 ## Bundled OpenCode assets
 
@@ -38,6 +38,8 @@ The generated project can ship opinionated OpenCode components alongside the plu
 - project instructions from `AGENTS.md`
 
 That lets you keep plugin behavior and companion OpenCode workflows in one repository instead of maintaining a second config tree by hand.
+
+Those assets load automatically inside the generated repository itself. If you are testing the plugin from a separate consumer repository, you still need to symlink or copy the relevant `.opencode` directories into that consumer project because package installation alone does not project those files outward.
 
 ## Logging
 

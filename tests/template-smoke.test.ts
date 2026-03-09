@@ -81,6 +81,13 @@ describe("template smoke test", () => {
     });
     expect(generatedBuild.exitCode).toBe(0);
 
+    const generatedLint = Bun.spawnSync([bunExecutable, "run", "lint"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(generatedLint.exitCode).toBe(0);
+
     const pkg = (await Bun.file(join(generatedProject, "package.json")).json()) as Record<string, unknown>;
     expect(pkg).toMatchObject({ name: "smoke-plugin" });
     expect(pkg).not.toHaveProperty("bun-create");
@@ -143,6 +150,13 @@ describe("template smoke test", () => {
       stderr: "pipe",
     });
     expect(generatedBuild.exitCode).toBe(0);
+
+    const generatedLint = Bun.spawnSync([bunExecutable, "run", "lint"], {
+      cwd: generatedProject,
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(generatedLint.exitCode).toBe(0);
 
     const generatedTests = Bun.spawnSync([bunExecutable, "test", "tests/plugin.test.ts"], {
       cwd: generatedProject,

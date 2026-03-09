@@ -56,6 +56,8 @@ ln -s /path/to/{{PLUGIN_NAME}}/.opencode/commands /path/to/consumer/.opencode/co
 ln -s /path/to/{{PLUGIN_NAME}}/.opencode/skills /path/to/consumer/.opencode/skills
 ```
 
+Bundled agents, commands, skills, and instructions load automatically when you work inside this generated repository. They are not injected into some other repository just because this package exists in `node_modules`, so keep the symlink/copy step in mind when testing against a separate consumer project.
+
 ## Publish to npm
 
 Because the package entry point is `index.ts`, you can also publish this repository and load it from `opencode.json`:
@@ -72,10 +74,11 @@ Because the package entry point is `index.ts`, you can also publish this reposit
 2. Remove any optional directories you do not need.
 3. Run `bun test` after each meaningful change.
 4. Run `bun run build` to type-check the generated project before publishing or linking it.
-5. Use `client.app.log()` through the provided `Logger` helper instead of `console.log`.
-6. Extend the `Logger` if you later need extra log destinations rather than adding direct `console` calls in hooks or tools.
-7. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.
-8. Rename the bundled agent, command, and skill starters early so their names match your actual workflow.
+5. Run `bun run lint` so the generated naming and logging guardrails stay green.
+6. Use `client.app.log()` through the provided `Logger` helper instead of `console.log`.
+7. Extend the `Logger` if you later need extra log destinations rather than adding direct `console` calls in hooks or tools.
+8. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.
+9. Rename the bundled agent, command, and skill starters early so their names match your actual workflow.
 
 ## Logging guardrails
 
