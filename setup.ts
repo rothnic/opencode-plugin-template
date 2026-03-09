@@ -46,6 +46,8 @@ const addonCatalog = {
   },
 } as const;
 
+// Add-on names are intentionally lowercase because both CLI flags and prompt
+// input are normalized to lowercase before validation.
 const addonNames = Object.keys(addonCatalog) as Array<keyof typeof addonCatalog>;
 type AddonName = (typeof addonNames)[number];
 
@@ -116,7 +118,7 @@ function normalizeAddonList(input: string): AddonName[] {
     );
   }
 
-  return [...unique];
+  return [...unique].sort();
 }
 
 /**
@@ -148,9 +150,10 @@ function legacyAddonsFromEnv(): AddonName[] {
  * 1. `--all-addons`
  * 2. repeated `--addon` flags
  * 3. legacy environment variables / `OPENCODE_TEMPLATE_ADDONS`
- * 4. interactive prompt fallback
+ * 4. interactive prompt fallback (interactive mode only)
  *
- * In non-interactive mode, the highest-priority non-empty selection wins.
+ * In non-interactive mode, the prompt path is skipped and the highest-priority
+ * non-empty selection wins.
  */
 function resolveAddons(nonInteractive: boolean, cliAddons: readonly AddonName[], allAddons: boolean): AddonName[] {
   const defaultAddons = allAddons
@@ -271,9 +274,9 @@ async function main() {
       ? defaultPluginName
       : ask(`Plugin package name (${defaultPluginName}): `, defaultPluginName);
     const envDescription = process.env.OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION;
-    const defaultDescription = cli.description || `OpenCode plugin: ${pluginName}`;
+    const defaultDescription = cli.description || envDescription || `OpenCode plugin: ${pluginName}`;
     const pluginDescription = nonInteractive
-      ? cli.description || envDescription || `OpenCode plugin: ${pluginName}`
+      ? defaultDescription
       : ask(
           `Plugin description (${defaultDescription}): `,
           defaultDescription,

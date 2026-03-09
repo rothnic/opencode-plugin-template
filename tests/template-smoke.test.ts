@@ -191,6 +191,14 @@ describe("template smoke test", () => {
     });
     expect(generatedTests.exitCode).toBe(0);
 
+    expect(existsSync(join(generatedProject, ".opencode", "plugins", "sqlite-plugin", "config", "index.ts"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "plugins", "sqlite-plugin", "state", "index.ts"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "plugins", "sqlite-plugin", "database", "index.ts"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "agents", "template.md"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "commands", "template.md"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "skills", "template", "SKILL.md"))).toBe(true);
+    expect(existsSync(join(generatedProject, ".opencode", "tools", "example-tool.ts"))).toBe(true);
+
     const agentFrontmatter = await readFrontmatter(join(generatedProject, ".opencode", "agents", "template.md"));
     expect(topLevelFrontmatterKeys(agentFrontmatter)).toEqual(["description", "mode"]);
     expect(agentFrontmatter).toContain("mode: subagent");
