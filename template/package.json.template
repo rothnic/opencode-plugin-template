@@ -1,0 +1,41 @@
+{
+  "name": "{{PLUGIN_NAME}}",
+  "version": "0.1.0",
+  "description": "{{PLUGIN_DESCRIPTION}}",
+  "type": "module",
+  "main": "./index.ts",
+  "files": [
+    "index.ts",
+    ".opencode",
+    "README.md",
+    "docs",
+    "scripts"
+  ],
+  "scripts": {
+    "build": "bunx tsc --noEmit",
+    "test": "bun test tests/plugin.test.ts",
+    "lint": "bunx @ls-lint/ls-lint -config ./.ls-lint.yml .",
+    "check:logging:warn": "bun run scripts/check-plugin-logging.ts warn",
+    "check:logging:block": "bun run scripts/check-plugin-logging.ts block",
+    "prepare": "bun run scripts/install-hooks.ts",
+    "version:bump": "bun run scripts/version-bump.ts"
+  },
+  "keywords": [
+    "opencode",
+    "plugin",
+    "ai",
+    "automation"
+  ],
+  "author": "{{PLUGIN_AUTHOR}}",
+  "license": "{{PLUGIN_LICENSE}}",
+  "devDependencies": {
+    "@opencode-ai/plugin": "latest",
+    "@types/bun": "latest",
+    "typescript": "^5.9.3",
+    "lefthook": "^1.6.0",
+    "@ls-lint/ls-lint": "^2.3.1"
+  },
+  "engines": {
+    "bun": ">=1.0.0"
+  }
+}

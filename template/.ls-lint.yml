@@ -1,0 +1,16 @@
+ls:
+  .:
+    .dir: kebab-case
+    .ts: kebab-case
+    .md: kebab-case
+    .json: kebab-case
+    .yml: kebab-case
+
+ignore:
+  - node_modules
+  - dist
+  - .git
+  - README.md
+  - AGENTS.md
+  - .ls-lint.yml
+  - .opencode/skills/*/SKILL.md

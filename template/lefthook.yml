@@ -1,0 +1,14 @@
+pre-commit:
+  parallel: true
+  commands:
+    lint:
+      run: bun run lint
+    no-console-warn:
+      run: bun run scripts/check-plugin-logging.ts warn
+
+pre-push:
+  commands:
+    no-console-block:
+      run: bun run scripts/check-plugin-logging.ts block
+    test:
+      run: bun test tests/plugin.test.ts
