@@ -14,10 +14,12 @@
     "version:bump": "bun run scripts/version-bump.ts"
   },
   "devDependencies": {
+    "@ls-lint/ls-lint": "^2.3.1",
+    "@optique/core": "0.10.7",
+    "@optique/run": "0.10.7",
     "@types/bun": "latest",
-    "typescript": "^5.9.3",
     "lefthook": "^1.6.0",
-    "@ls-lint/ls-lint": "^2.3.1"
+    "typescript": "^5.9.3"
   },
   "engines": {
     "bun": ">=1.0.0"

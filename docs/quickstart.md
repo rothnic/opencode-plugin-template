@@ -6,8 +6,11 @@
 bun create rothnic/opencode-plugin-template my-plugin
 cd my-plugin
 bun install
+bun run build
 bun test
 ```
+
+During setup, keep the core scaffold and only opt into add-ons you actually need.
 
 ## What to edit first
 

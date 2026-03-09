@@ -1,5 +1,14 @@
 # Using the generated plugin
 
+## Core scaffold
+
+Every generated plugin starts with:
+
+- the local plugin implementation under `.opencode/plugins/{{PLUGIN_NAME}}/`
+- starter hooks for `event`, `tool.execute.before`, and `tool.execute.after`
+- the shared `Logger` helper and logging guardrails
+- Bun `build`, `lint`, and `test` commands
+
 ## Starter hooks
 
 The generated plugin starts with:
@@ -8,9 +17,9 @@ The generated plugin starts with:
 - `tool.execute.before` for command validation
 - `tool.execute.after` for lightweight post-tool logging
 
-## Optional helpers
+## Optional add-ons
 
-The generated project may include:
+The generated project may include these **only if you selected them during setup**:
 
 - `config/` for loading plugin-specific settings from `opencode.json`
 - `state/` for saving plugin data under `.opencode/state/` or `~/.config/opencode/state/`
@@ -18,6 +27,8 @@ The generated project may include:
 - `.opencode/agents/`, `.opencode/commands/`, `.opencode/skills/`, and `.opencode/tools/` starter templates
 
 If you do not need a helper, delete it early instead of carrying unused abstractions.
+
+If you skipped an add-on during setup, that directory is intentionally absent.
 
 ## Validation commands
 
@@ -48,3 +59,7 @@ The generated plugin already includes a `Logger` helper under `.opencode/plugins
 - Use it for all plugin logging so messages flow through `client.app.log()`.
 - Add future destinations there if you later want to fan logs out to a file or another service.
 - Avoid direct `console.*` usage in plugin code; `lefthook` warns during `pre-commit` and blocks during `pre-push`.
+
+## Add-ons later
+
+The generated plugin is designed so the core scaffold can stand on its own. If you later need an add-on, add the matching directory and uncomment the relevant integration point in `.opencode/plugins/{{PLUGIN_NAME}}/index.ts` when applicable.

@@ -2,7 +2,19 @@
 
 ## How do I keep the template small?
 
-Delete optional directories during setup or right after generation.
+Start with the core scaffold only. Add-ons are opt-in during setup and stay isolated in their own directories so you can delete or reintroduce them cleanly.
+
+## How do I choose add-ons up front?
+
+Use repeated `--addon` flags:
+
+```bash
+bun run setup.ts \
+  --non-interactive \
+  --plugin-name my-plugin \
+  --addon tool \
+  --addon database
+```
 
 ## How do I add persistent state later?
 

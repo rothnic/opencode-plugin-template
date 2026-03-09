@@ -4,6 +4,17 @@
 
 The generated template intentionally wires only a few documented hooks. Add more only after you know why they belong in your plugin.
 
+## Treat core infrastructure differently from add-ons
+
+Core best practices should not be optional:
+
+- keep the shared `Logger`,
+- keep build/lint/test/version-bump scripts,
+- keep the minimal starter hook surface until you have a concrete reason to change it,
+- keep the logging guardrails that prevent direct `console.*` usage from creeping back in.
+
+Add-ons are different: they should only exist when your plugin actually needs them.
+
 ## Keep optional pieces optional
 
 Delete these early if you do not need them:

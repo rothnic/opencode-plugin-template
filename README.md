@@ -30,8 +30,53 @@ During setup, the template will:
 - infer the plugin package name from the target directory,
 - strip the common `opencode-plugin-` prefix when that prefix is present,
 - ask for description, author, and license,
+- always include the core best-practices scaffold,
+- let you explicitly choose which add-ons to include,
 - rename `.opencode/plugins/{{PLUGIN_NAME}}/` to the real plugin name,
-- optionally remove the agents, commands, skills, tool, config, state, or SQLite starter files you do not want.
+- only keep the add-on directories you selected.
+
+You can also drive setup non-interactively:
+
+```bash
+bun run setup.ts \
+  --non-interactive \
+  --plugin-name my-plugin \
+  --description "My OpenCode plugin" \
+  --author "Your Name" \
+  --license MIT \
+  --addon tool \
+  --addon database
+```
+
+## Core best practices included by default
+
+Every generated plugin starts with:
+
+- a local plugin package under `.opencode/plugins/<plugin-name>/`,
+- a root `index.ts` package entry,
+- Bun `build`, `lint`, `test`, and `version:bump` scripts,
+- the shared `Logger` wrapper around `client.app.log()`,
+- logging guardrails in `lefthook`,
+- a small starter hook surface (`event`, `tool.execute.before`, `tool.execute.after`),
+- one smoke test under `tests/plugin.test.ts`.
+
+These are the pieces this template treats as the **core scaffold** rather than optional extras.
+
+## Optional add-ons
+
+The setup CLI now treats optional scaffolding as add-ons:
+
+| Add-on | What it adds |
+| --- | --- |
+| `agent` | `.opencode/agents/` starter |
+| `command` | `.opencode/commands/` starter |
+| `skill` | `.opencode/skills/<name>/SKILL.md` starter |
+| `tool` | `.opencode/tools/` starter and tool registration example |
+| `config` | plugin config helper under `.opencode/plugins/<plugin-name>/config/` |
+| `state` | JSON state helper under `.opencode/plugins/<plugin-name>/state/` |
+| `database` | Bun SQLite helper under `.opencode/plugins/<plugin-name>/database/` |
+
+By default, the generated project keeps the **core scaffold only**. Add-ons are chosen explicitly during setup or via repeated `--addon` flags.
 
 ## What the generated plugin looks like
 
@@ -63,11 +108,7 @@ The generated project intentionally starts small:
 
 - one plugin package entry point,
 - one smoke test,
-- one bundled agent starter,
-- one bundled command starter,
-- one bundled skill starter,
-- one custom tool template,
-- optional config, state, and local SQLite helpers.
+- no add-ons unless you ask for them during setup,
 - a generated Logger helper that wraps `client.app.log()` and acts as the single extension point for future log destinations.
 
 It does **not** assume every plugin needs persistent state, custom tools, or multiple agents on day one.
@@ -94,10 +135,10 @@ The current smoke coverage is intentionally explicit:
 | Scenario | Validated |
 | --- | --- |
 | Template repository | `bun install`, `bun run build`, `bun run lint`, `bun test` |
-| Generated project with bundled starters kept | `bun install`, `bun run build`, `bun run lint`, starter asset shape checks |
-| Generated project with optional SQLite helper | `bun install`, `bun run build`, `bun run lint`, `bun test`, SQLite read/write |
+| Generated project (core only) | `bun install`, `bun run build`, `bun run lint`, `bun test`, local plugin linking/import |
+| Generated project with selected add-ons | `bun install`, `bun run build`, `bun run lint`, starter asset shape checks |
+| Generated project with persistence add-ons | `bun install`, `bun run build`, `bun run lint`, `bun test`, SQLite read/write |
 | Generated project logging guardrails | warning in `warn` mode, blocking in `block` mode |
-| Local plugin consumption | symlinked plugin import from a separate consumer repo |
 
 If you add a new starter capability, extend the smoke test before documenting it as a validated path.
 

@@ -2,13 +2,32 @@
 
 {{PLUGIN_DESCRIPTION}}
 
-## What this template gives you
+## Core best practices included by default
 
-- A publishable OpenCode plugin package with `index.ts` at the repository root.
-- A local-plugin folder at `.opencode/plugins/{{PLUGIN_NAME}}/` for easy testing inside OpenCode projects.
-- Optional starter directories for custom agents, commands, skills, and tools.
-- A single Bun smoke test so you can confirm the plugin loads before expanding the project.
-- Optional `config/`, `state/`, and Bun-native `database/` helpers you can keep or delete during setup.
+Every generated plugin includes:
+
+- a publishable OpenCode plugin package with `index.ts` at the repository root,
+- a local-plugin folder at `.opencode/plugins/{{PLUGIN_NAME}}/` for project-local OpenCode testing,
+- Bun `build`, `lint`, `test`, and `version:bump` scripts,
+- a generated `Logger` wrapper around `client.app.log()`,
+- logging guardrails in `lefthook`,
+- a single Bun smoke test so you can confirm the plugin loads before expanding the project.
+
+## Available add-ons
+
+These are optional on purpose. If you selected one during setup, its starter files are already present:
+
+| Add-on | Starter files |
+| --- | --- |
+| `agent` | `.opencode/agents/` |
+| `command` | `.opencode/commands/` |
+| `skill` | `.opencode/skills/<name>/SKILL.md` |
+| `tool` | `.opencode/tools/` |
+| `config` | `.opencode/plugins/{{PLUGIN_NAME}}/config/` |
+| `state` | `.opencode/plugins/{{PLUGIN_NAME}}/state/` |
+| `database` | `.opencode/plugins/{{PLUGIN_NAME}}/database/` |
+
+If you did **not** select one, the directory is absent rather than left as noise in the generated project.
 
 ## Repository structure
 
@@ -71,14 +90,14 @@ Because the package entry point is `index.ts`, you can also publish this reposit
 ## Next steps
 
 1. Update `.opencode/plugins/{{PLUGIN_NAME}}/index.ts` with your plugin logic.
-2. Remove any optional directories you do not need.
+2. If you selected add-ons, remove any starter directories you still do not need.
 3. Run `bun test` after each meaningful change.
 4. Run `bun run build` to type-check the generated project before publishing or linking it.
 5. Run `bun run lint` so the generated naming and logging guardrails stay green.
 6. Use `client.app.log()` through the provided `Logger` helper instead of `console.log`.
 7. Extend the `Logger` if you later need extra log destinations rather than adding direct `console` calls in hooks or tools.
 8. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.
-9. Rename the bundled agent, command, and skill starters early so their names match your actual workflow.
+9. Rename any bundled agent, command, and skill starters early so their names match your actual workflow.
 
 ## Logging guardrails
 
@@ -101,3 +120,7 @@ The generated project includes starter examples for the documented OpenCode disc
 - `AGENTS.md`
 
 These are loaded automatically when you work inside the generated repository, so you can pair plugin code with opinionated agents, commands, skills, and instructions from the same project.
+
+## Adding an add-on later
+
+The scaffold keeps core infrastructure separate from add-ons on purpose. If you later decide that you need something like SQLite storage or a bundled agent, add the corresponding directory back and wire it into `.opencode/plugins/{{PLUGIN_NAME}}/index.ts` if needed. The optional imports in that file show the expected integration points.

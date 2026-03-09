@@ -6,6 +6,8 @@
       "name": "opencode-plugin-template",
       "devDependencies": {
         "@ls-lint/ls-lint": "^2.3.1",
+        "@optique/core": "0.10.7",
+        "@optique/run": "0.10.7",
         "@types/bun": "latest",
         "lefthook": "^1.6.0",
         "typescript": "^5.9.3",
@@ -14,6 +16,10 @@
   },
   "packages": {
     "@ls-lint/ls-lint": ["@ls-lint/ls-lint@2.3.1", "", { "os": [ "linux", "win32", "darwin", ], "cpu": [ "x64", "arm64", "s390x", ], "bin": { "ls-lint": "bin/cli.js" } }, "sha512-vPe6IDByQnQRTxcAYjTxrmga/tSIui50VBFTB5KIJWY3OOFmxE2VtymjeSEfQfiMbhZV/ZPAqYy2lt8pZFQ0Rw=="],
+
+    "@optique/core": ["@optique/core@0.10.7", "", {}, "sha512-FwSX8ILFqzcCqZi6Xetsa4flJp/yyqFG4d4eFD98BtqdzxxuylzdrKvsXj/ow8mcoVjYkTuaIkqHSBxonqMcQg=="],
+
+    "@optique/run": ["@optique/run@0.10.7", "", { "dependencies": { "@optique/core": "0.10.7" } }, "sha512-1CVdH8uyptj1nFGS2MLacSmZceRClez4LD/G/Gm38wrAVnJq6I+9Fvyh2bVHErsZLQzR0a12CYMUWIgDKY3X1w=="],
 
     "@types/bun": ["@types/bun@1.3.10", "", { "dependencies": { "bun-types": "1.3.10" } }, "sha512-0+rlrUrOrTSskibryHbvQkDOWRJwJZqZlxrUs1u4oOoTln8+WIXBPmAuCF35SWB2z4Zl3E84Nl/D0P7803nigQ=="],
 

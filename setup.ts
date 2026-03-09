@@ -1,5 +1,10 @@
 #!/usr/bin/env bun
 
+import { object } from "@optique/core/constructs";
+import { multiple } from "@optique/core/modifiers";
+import { option } from "@optique/core/primitives";
+import { choice, string } from "@optique/core/valueparser";
+import { run } from "@optique/run";
 import { mkdir, readdir, rename, rm } from "node:fs/promises";
 
 const colors = {
@@ -9,6 +14,50 @@ const colors = {
   yellow: "\x1b[33m",
   red: "\x1b[31m",
 };
+
+const addonCatalog = {
+  agent: {
+    description: "Bundled `.opencode/agents/` starter.",
+    paths: [".opencode/agents"],
+  },
+  command: {
+    description: "Bundled `.opencode/commands/` starter.",
+    paths: [".opencode/commands"],
+  },
+  skill: {
+    description: "Bundled `.opencode/skills/` starter.",
+    paths: [".opencode/skills"],
+  },
+  tool: {
+    description: "Bundled `.opencode/tools/` starter and tool registration example.",
+    paths: [".opencode/tools"],
+  },
+  config: {
+    description: "Config helper for plugin settings loaded from OpenCode config files.",
+    paths: [".opencode/plugins/{{PLUGIN_NAME}}/config"],
+  },
+  state: {
+    description: "JSON state helper for project/global plugin state.",
+    paths: [".opencode/plugins/{{PLUGIN_NAME}}/state"],
+  },
+  database: {
+    description: "Bun SQLite helper for local structured plugin storage.",
+    paths: [".opencode/plugins/{{PLUGIN_NAME}}/database"],
+  },
+} as const;
+
+const addonNames = Object.keys(addonCatalog) as Array<keyof typeof addonCatalog>;
+type AddonName = (typeof addonNames)[number];
+
+const cliParser = object({
+  pluginName: option("--plugin-name", string()),
+  description: option("--description", string()),
+  author: option("--author", string()),
+  license: option("--license", string()),
+  addon: multiple(option("--addon", choice(addonNames))),
+  allAddons: option("--all-addons"),
+  nonInteractive: option("--non-interactive", "--yes"),
+});
 
 function joinPath(...parts: string[]) {
   return parts
@@ -28,6 +77,88 @@ function writeLine(message = "", color = colors.reset) {
 function ask(question: string, fallback: string) {
   const answer = prompt(`${colors.cyan}${question}${colors.reset}`) ?? "";
   return answer.trim() || fallback;
+}
+
+function normalizeAddonList(input: string): AddonName[] {
+  if (!input.trim()) return [];
+
+  const parts = input
+    .split(",")
+    .map((part) => part.trim().toLowerCase())
+    .filter(Boolean);
+
+  if (parts.includes("all")) {
+    return [...addonNames];
+  }
+
+  if (parts.includes("none")) {
+    return [];
+  }
+
+  const unique = new Set<AddonName>();
+  for (const part of parts) {
+    if (addonNames.includes(part as AddonName)) {
+      unique.add(part as AddonName);
+      continue;
+    }
+
+    throw new Error(
+      `Unknown add-on "${part}". Valid add-ons: ${addonNames.join(", ")}, "all", or "none".`,
+    );
+  }
+
+  return [...unique];
+}
+
+function legacyAddonsFromEnv(): AddonName[] {
+  if (process.env.OPENCODE_TEMPLATE_ADDONS) {
+    return normalizeAddonList(process.env.OPENCODE_TEMPLATE_ADDONS);
+  }
+
+  const selected = new Set<AddonName>();
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_AGENT ?? "n").toLowerCase().startsWith("y")) selected.add("agent");
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_COMMAND ?? "n").toLowerCase().startsWith("y")) selected.add("command");
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_SKILL ?? "n").toLowerCase().startsWith("y")) selected.add("skill");
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_TOOL ?? "n").toLowerCase().startsWith("y")) selected.add("tool");
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_STATE ?? "n").toLowerCase().startsWith("y")) {
+    selected.add("config");
+    selected.add("state");
+  }
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_DATABASE ?? "n").toLowerCase().startsWith("y")) {
+    selected.add("database");
+  }
+  return [...selected];
+}
+
+function resolveAddons(nonInteractive: boolean, cliAddons: readonly AddonName[], allAddons: boolean): AddonName[] {
+  const defaultAddons = allAddons
+    ? [...addonNames]
+    : cliAddons.length > 0
+      ? [...cliAddons]
+      : legacyAddonsFromEnv();
+
+  if (nonInteractive) {
+    return defaultAddons;
+  }
+
+  writeLine("\nCore best practices included in every generated plugin:", colors.cyan);
+  writeLine("  • structured Logger wrapper around client.app.log()", colors.green);
+  writeLine("  • logging guardrails via lefthook + logging check script", colors.green);
+  writeLine("  • Bun build/lint/test/version-bump scripts", colors.green);
+  writeLine("  • starter plugin hooks and local .opencode/plugins/<plugin-name>/ layout", colors.green);
+
+  writeLine("\nOptional add-ons you can include now:", colors.yellow);
+  for (const addonName of addonNames) {
+    writeLine(`  • ${addonName}: ${addonCatalog[addonName].description}`, colors.green);
+  }
+
+  const fallback = defaultAddons.length > 0 ? defaultAddons.join(", ") : "none";
+  const answer = ask(
+    `Add-ons to include [${fallback}] (comma-separated, "none", or "all"): `,
+    fallback,
+  );
+
+  return normalizeAddonList(answer);
 }
 
 async function copyDirectory(src: string, dest: string) {
@@ -75,7 +206,24 @@ async function replaceInDirectory(dir: string, replacements: Record<string, stri
   }
 }
 
+async function removeUnselectedAddons(cwd: string, pluginName: string, selectedAddons: readonly AddonName[]) {
+  const selected = new Set(selectedAddons);
+  for (const addonName of addonNames) {
+    if (selected.has(addonName)) continue;
+
+    for (const rawPath of addonCatalog[addonName].paths) {
+      const resolvedPath = rawPath.replaceAll("{{PLUGIN_NAME}}", pluginName);
+      await rm(joinPath(cwd, resolvedPath), { recursive: true, force: true });
+    }
+  }
+}
+
 async function main() {
+  const cli = run(cliParser, {
+    programName: "bun run setup.ts",
+    help: "option",
+  });
+
   writeLine("\n" + "=".repeat(60));
   writeLine("  OpenCode Plugin Template Setup", colors.cyan);
   writeLine("=".repeat(60) + "\n");
@@ -87,21 +235,25 @@ async function main() {
     ? dirName.slice("opencode-plugin-".length)
     : dirName;
 
-  const nonInteractive = process.env.OPENCODE_TEMPLATE_NONINTERACTIVE === "1";
+  const nonInteractive = cli.nonInteractive || process.env.OPENCODE_TEMPLATE_NONINTERACTIVE === "1";
 
   try {
     const pluginName = nonInteractive
-      ? process.env.OPENCODE_TEMPLATE_PLUGIN_NAME || inferredPluginName
-      : ask(`Plugin package name (${inferredPluginName}): `, inferredPluginName);
+      ? cli.pluginName || process.env.OPENCODE_TEMPLATE_PLUGIN_NAME || inferredPluginName
+      : ask(`Plugin package name (${cli.pluginName || inferredPluginName}): `, cli.pluginName || inferredPluginName);
     const pluginDescription = nonInteractive
-      ? process.env.OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION || `OpenCode plugin: ${pluginName}`
-      : ask(`Plugin description (OpenCode plugin: ${pluginName}): `, `OpenCode plugin: ${pluginName}`);
+      ? cli.description || process.env.OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION || `OpenCode plugin: ${pluginName}`
+      : ask(
+          `Plugin description (${cli.description || `OpenCode plugin: ${pluginName}`}): `,
+          cli.description || `OpenCode plugin: ${pluginName}`,
+        );
     const pluginAuthor = nonInteractive
-      ? process.env.OPENCODE_TEMPLATE_PLUGIN_AUTHOR || ""
-      : ask("Author (): ", "");
+      ? cli.author || process.env.OPENCODE_TEMPLATE_PLUGIN_AUTHOR || ""
+      : ask("Author (): ", cli.author || "");
     const pluginLicense = nonInteractive
-      ? process.env.OPENCODE_TEMPLATE_PLUGIN_LICENSE || "MIT"
-      : ask("License (MIT): ", "MIT");
+      ? cli.license || process.env.OPENCODE_TEMPLATE_PLUGIN_LICENSE || "MIT"
+      : ask("License (MIT): ", cli.license || "MIT");
+    const selectedAddons = resolveAddons(nonInteractive, cli.addon, cli.allAddons);
 
     writeLine("\nCleaning template-repo files...", colors.cyan);
     for (const repoOnlyPath of ["README.md", "AGENTS.md", "docs", "tests", ".ls-lint.yml", "lefthook.yml", ".github"]) {
@@ -155,49 +307,11 @@ async function main() {
       writeLine("  ! Plugin directory placeholder not found; continuing without rename", colors.yellow);
     }
 
-    writeLine("\nOptional components:", colors.yellow);
-    const keepAgent = (
-      nonInteractive
-        ? process.env.OPENCODE_TEMPLATE_KEEP_AGENT || "y"
-        : ask("Keep agent template (.opencode/agents/)? [Y/n]: ", "y")
-    ).toLowerCase();
-    const keepSkill = (
-      nonInteractive
-        ? process.env.OPENCODE_TEMPLATE_KEEP_SKILL || "y"
-        : ask("Keep skill template (.opencode/skills/)? [Y/n]: ", "y")
-    ).toLowerCase();
-    const keepCommand = (
-      nonInteractive
-        ? process.env.OPENCODE_TEMPLATE_KEEP_COMMAND || "y"
-        : ask("Keep command template (.opencode/commands/)? [Y/n]: ", "y")
-    ).toLowerCase();
-    const keepTool = (
-      nonInteractive
-        ? process.env.OPENCODE_TEMPLATE_KEEP_TOOL || "y"
-        : ask("Keep tool example (.opencode/tools/)? [Y/n]: ", "y")
-    ).toLowerCase();
-    const keepState = (
-      nonInteractive
-        ? process.env.OPENCODE_TEMPLATE_KEEP_STATE || "y"
-        : ask("Keep optional config/state helpers? [Y/n]: ", "y")
-    ).toLowerCase();
-    const keepDatabase = (
-      nonInteractive
-        ? process.env.OPENCODE_TEMPLATE_KEEP_DATABASE || "y"
-        : ask("Keep optional Bun SQLite helper? [Y/n]: ", "y")
-    ).toLowerCase();
-
-    if (!keepAgent.startsWith("y")) await rm(joinPath(cwd, ".opencode", "agents"), { recursive: true, force: true });
-    if (!keepSkill.startsWith("y")) await rm(joinPath(cwd, ".opencode", "skills"), { recursive: true, force: true });
-    if (!keepCommand.startsWith("y")) await rm(joinPath(cwd, ".opencode", "commands"), { recursive: true, force: true });
-    if (!keepTool.startsWith("y")) await rm(joinPath(cwd, ".opencode", "tools"), { recursive: true, force: true });
-    if (!keepState.startsWith("y")) {
-      await rm(joinPath(cwd, ".opencode", "plugins", pluginName, "config"), { recursive: true, force: true });
-      await rm(joinPath(cwd, ".opencode", "plugins", pluginName, "state"), { recursive: true, force: true });
-    }
-    if (!keepDatabase.startsWith("y")) {
-      await rm(joinPath(cwd, ".opencode", "plugins", pluginName, "database"), { recursive: true, force: true });
-    }
+    await removeUnselectedAddons(cwd, pluginName, selectedAddons);
+    writeLine(
+      `\nSelected add-ons: ${selectedAddons.length > 0 ? selectedAddons.join(", ") : "none (core scaffold only)"}`,
+      colors.cyan,
+    );
 
     const pkgPath = joinPath(cwd, "package.json");
     const pkg = (await Bun.file(pkgPath).json()) as Record<string, unknown>;
@@ -210,7 +324,10 @@ async function main() {
     writeLine("\n" + "=".repeat(60));
     writeLine("  ✓ Setup Complete", colors.green);
     writeLine("=".repeat(60));
-    writeLine(`\nNext steps:\n  1. bun install\n  2. bun test\n  3. Review README.md for local and npm install instructions\n`, colors.cyan);
+    writeLine(
+      "\nNext steps:\n  1. bun install\n  2. bun run build\n  3. bun run lint\n  4. bun test\n  5. Review README.md for core vs add-on guidance\n",
+      colors.cyan,
+    );
   } finally {
     // No interactive resources to close when using Bun's built-in prompt().
   }
