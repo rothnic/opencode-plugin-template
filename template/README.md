@@ -97,7 +97,7 @@ Because the package entry point is `index.ts`, you can also publish this reposit
 6. Use `client.app.log()` through the provided `Logger` helper instead of `console.log`.
 7. Extend the `Logger` if you later need extra log destinations rather than adding direct `console` calls in hooks or tools.
 8. If you keep `database/`, prefer `bun:sqlite` prepared statements and WAL mode for local storage.
-9. Rename any bundled agent, command, and skill starters early so their names match your actual workflow.
+9. If you kept any agent, command, or skill add-ons, rename those starters early so their names match your actual workflow.
 
 ## Logging guardrails
 

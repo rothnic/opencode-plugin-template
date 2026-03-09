@@ -79,6 +79,15 @@ function ask(question: string, fallback: string) {
   return answer.trim() || fallback;
 }
 
+/**
+ * Parses a comma-separated add-on selection string.
+ *
+ * Supported special values:
+ * - `none`: select no add-ons
+ * - `all`: select every add-on
+ *
+ * Any other value must be a comma-separated list of valid add-on names.
+ */
 function normalizeAddonList(input: string): AddonName[] {
   if (!input.trim()) return [];
 
@@ -110,6 +119,11 @@ function normalizeAddonList(input: string): AddonName[] {
   return [...unique];
 }
 
+/**
+ * Backward-compatibility layer for the previous environment-variable-based setup
+ * flow. Newer automation should prefer `--addon` flags or `OPENCODE_TEMPLATE_ADDONS`,
+ * but we still honor the older KEEP_* variables to avoid breaking existing usage.
+ */
 function legacyAddonsFromEnv(): AddonName[] {
   if (process.env.OPENCODE_TEMPLATE_ADDONS) {
     return normalizeAddonList(process.env.OPENCODE_TEMPLATE_ADDONS);
@@ -120,16 +134,24 @@ function legacyAddonsFromEnv(): AddonName[] {
   if ((process.env.OPENCODE_TEMPLATE_KEEP_COMMAND ?? "n").toLowerCase().startsWith("y")) selected.add("command");
   if ((process.env.OPENCODE_TEMPLATE_KEEP_SKILL ?? "n").toLowerCase().startsWith("y")) selected.add("skill");
   if ((process.env.OPENCODE_TEMPLATE_KEEP_TOOL ?? "n").toLowerCase().startsWith("y")) selected.add("tool");
-  if ((process.env.OPENCODE_TEMPLATE_KEEP_STATE ?? "n").toLowerCase().startsWith("y")) {
-    selected.add("config");
-    selected.add("state");
-  }
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_CONFIG ?? "n").toLowerCase().startsWith("y")) selected.add("config");
+  if ((process.env.OPENCODE_TEMPLATE_KEEP_STATE ?? "n").toLowerCase().startsWith("y")) selected.add("state");
   if ((process.env.OPENCODE_TEMPLATE_KEEP_DATABASE ?? "n").toLowerCase().startsWith("y")) {
     selected.add("database");
   }
   return [...selected];
 }
 
+/**
+ * Resolves the final add-on selection using this precedence:
+ *
+ * 1. `--all-addons`
+ * 2. repeated `--addon` flags
+ * 3. legacy environment variables / `OPENCODE_TEMPLATE_ADDONS`
+ * 4. interactive prompt fallback
+ *
+ * In non-interactive mode, the highest-priority non-empty selection wins.
+ */
 function resolveAddons(nonInteractive: boolean, cliAddons: readonly AddonName[], allAddons: boolean): AddonName[] {
   const defaultAddons = allAddons
     ? [...addonNames]
@@ -206,6 +228,11 @@ async function replaceInDirectory(dir: string, replacements: Record<string, stri
   }
 }
 
+/**
+ * Removes add-on starter directories that were not selected for the generated
+ * project. Core scaffold files remain untouched; only add-on paths from the
+ * catalog are removed.
+ */
 async function removeUnselectedAddons(cwd: string, pluginName: string, selectedAddons: readonly AddonName[]) {
   const selected = new Set(selectedAddons);
   for (const addonName of addonNames) {

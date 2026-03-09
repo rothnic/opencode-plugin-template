@@ -131,7 +131,7 @@ describe("template smoke test", () => {
     expect(new TextDecoder().decode(localLoad.stdout).trim()).toBe("function");
   });
 
-  test("generated project add-ons and sqlite helper both work", async () => {
+  test("generated project with selected add-ons validates successfully", async () => {
     const workspace = mkdtempSync(join(tmpdir(), "opencode-plugin-template-"));
     const generatedProject = join(workspace, "sqlite-plugin");
     copyTemplateRepo(generatedProject);
