@@ -238,14 +238,18 @@ async function main() {
   const nonInteractive = cli.nonInteractive || process.env.OPENCODE_TEMPLATE_NONINTERACTIVE === "1";
 
   try {
+    const envPluginName = process.env.OPENCODE_TEMPLATE_PLUGIN_NAME;
+    const defaultPluginName = cli.pluginName || envPluginName || inferredPluginName;
     const pluginName = nonInteractive
-      ? cli.pluginName || process.env.OPENCODE_TEMPLATE_PLUGIN_NAME || inferredPluginName
-      : ask(`Plugin package name (${cli.pluginName || inferredPluginName}): `, cli.pluginName || inferredPluginName);
+      ? defaultPluginName
+      : ask(`Plugin package name (${defaultPluginName}): `, defaultPluginName);
+    const envDescription = process.env.OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION;
+    const defaultDescription = cli.description || `OpenCode plugin: ${pluginName}`;
     const pluginDescription = nonInteractive
-      ? cli.description || process.env.OPENCODE_TEMPLATE_PLUGIN_DESCRIPTION || `OpenCode plugin: ${pluginName}`
+      ? cli.description || envDescription || `OpenCode plugin: ${pluginName}`
       : ask(
-          `Plugin description (${cli.description || `OpenCode plugin: ${pluginName}`}): `,
-          cli.description || `OpenCode plugin: ${pluginName}`,
+          `Plugin description (${defaultDescription}): `,
+          defaultDescription,
         );
     const pluginAuthor = nonInteractive
       ? cli.author || process.env.OPENCODE_TEMPLATE_PLUGIN_AUTHOR || ""
